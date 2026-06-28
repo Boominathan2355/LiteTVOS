@@ -16,6 +16,10 @@
   --au-danger:        #EA4335;
   --au-text:          #FFFFFF;
   --au-text-2:        #9AA0A6; /* secondary text — gray */
+  --au-border:        #23262D; /* hairline between surfaces */
+  --au-border-2:      #2C2F36; /* stronger border (inputs/sheets) */
+  --au-scrim:         rgba(8, 9, 11, 0.72); /* overlay backdrop */
+  --au-track:         rgba(255, 255, 255, 0.18); /* progress track */
 
   /* Accent — overridable per theme (Blue/Purple/Orange/Green/Red/White/Custom) */
   --au-accent:        var(--au-primary);
@@ -53,6 +57,22 @@
   --au-focus-scale: 1.06;
   --au-focus-glow:  0 0 0 3px color-mix(in srgb, var(--au-accent) 70%, transparent),
                     0 12px 32px rgba(0, 0, 0, 0.55);
+}
+
+/* Light theme — overrides only the color tokens; everything else inherits.
+   Toggled via <html data-au-theme="light"> (Settings › Theme). */
+:root[data-au-theme="light"] {
+  --au-bg:        #F3F5F9;
+  --au-surface:   #FFFFFF;
+  --au-surface-2: #E9EDF3;
+  --au-text:      #14171C;
+  --au-text-2:    #5B616E;
+  --au-border:    #E1E5EC;
+  --au-border-2:  #D3D9E2;
+  --au-scrim:     rgba(20, 23, 28, 0.42);
+  --au-track:     rgba(20, 23, 28, 0.14);
+  --au-focus-glow: 0 0 0 3px color-mix(in srgb, var(--au-accent) 50%, transparent),
+                   0 12px 30px rgba(20, 23, 28, 0.16);
 }
 
 /* Reduced-motion tier — forces the minimal animation tier.

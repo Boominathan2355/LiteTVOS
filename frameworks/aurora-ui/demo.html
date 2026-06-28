@@ -13,7 +13,25 @@
         display: flex; flex-direction: column;
         padding: var(--au-space-4) clamp(16px, 4vw, 56px) var(--au-space-3);
         box-sizing: border-box;
+        transition: background-color var(--au-dur-4) var(--au-ease-out),
+                    color var(--au-dur-4) var(--au-ease-out);
       }
+      /* Section + sheet entrance — the "smoothness" pass. */
+      @keyframes au-enter { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: none; } }
+      @keyframes au-pop   { from { opacity: 0; transform: scale(.96) translateY(8px); } to { opacity: 1; transform: none; } }
+      @keyframes au-rise  { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: none; } }
+      main.enter { animation: au-enter var(--au-dur-4) var(--au-ease-out); }
+      main.enter h2, main.enter .row, main.enter .grid, main.enter .guide,
+      main.enter .setrow, main.enter .chips, main.enter .search-box {
+        animation: au-rise var(--au-dur-4) var(--au-ease-out) both;
+      }
+      main.enter > :nth-child(2) { animation-delay: 40ms; }
+      main.enter > :nth-child(3) { animation-delay: 80ms; }
+      main.enter > :nth-child(4) { animation-delay: 120ms; }
+      main.enter > :nth-child(n+5) { animation-delay: 160ms; }
+      :root[data-au-motion="reduced"] main.enter,
+      :root[data-au-motion="reduced"] main.enter * ,
+      :root[data-au-motion="reduced"] .sheet { animation: none !important; }
       /* top bar */
       .topbar { display: flex; align-items: center; gap: 16px; }
       .brand { font: var(--au-display); font-size: 26px; margin: 0; }
@@ -32,7 +50,7 @@
       .tab:focus { color: var(--au-text); border-color: var(--au-primary);
         box-shadow: 0 0 0 3px color-mix(in srgb, var(--au-primary) 45%, transparent); }
       /* content */
-      main { flex: 1; overflow-y: auto; padding-bottom: 24px; }
+      main { flex: 1; overflow-y: auto; padding-bottom: 24px; scroll-behavior: smooth; }
       main::-webkit-scrollbar { width: 0; }
       h2 { font: var(--au-heading); font-size: 18px; margin: 18px 0 10px; }
       .row { display: flex; gap: 16px; overflow-x: auto; padding: 16px 4px; }
@@ -44,7 +62,7 @@
         background: var(--au-surface); border-radius: var(--au-radius-md);
         aspect-ratio: 1 / 1; display: flex; flex-direction: column;
         align-items: center; justify-content: center; gap: 10px;
-        cursor: pointer; outline: none; border: 1px solid #23262d;
+        cursor: pointer; outline: none; border: 1px solid var(--au-border);
         transition: transform var(--au-dur-3) var(--au-ease-spring),
                     box-shadow var(--au-dur-3) var(--au-ease-out);
       }
@@ -61,7 +79,7 @@
       /* live tv guide */
       .guide { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; padding: 12px 4px; }
       .chcard {
-        background: var(--au-surface); border: 1px solid #23262d;
+        background: var(--au-surface); border: 1px solid var(--au-border);
         border-left: 4px solid var(--ac, var(--au-primary));
         border-radius: var(--au-radius-md); padding: 14px 16px; outline: none; cursor: pointer;
         transition: transform var(--au-dur-3) var(--au-ease-spring),
@@ -93,7 +111,7 @@
       .search-box {
         width: 100%; box-sizing: border-box; font: var(--au-body);
         background: var(--au-surface); color: var(--au-text);
-        border: 1px solid #2c2f36; border-radius: var(--au-radius-md);
+        border: 1px solid var(--au-border-2); border-radius: var(--au-radius-md);
         padding: 14px 18px; outline: none;
       }
       .search-box:focus { border-color: var(--au-primary);
@@ -102,7 +120,7 @@
       /* settings */
       .setrow {
         display: flex; align-items: center; justify-content: space-between;
-        background: var(--au-surface); border: 1px solid #23262d;
+        background: var(--au-surface); border: 1px solid var(--au-border);
         border-radius: var(--au-radius-md); padding: 14px 18px; margin: 10px 0;
         outline: none; cursor: pointer;
       }
@@ -111,23 +129,28 @@
       .setrow .val { color: var(--au-text-2); }
       .chips { display: flex; gap: 8px; flex-wrap: wrap; margin: 8px 0 16px; }
       .chip { font: var(--au-caption); background: var(--au-surface-2);
-        border: 1px solid #2c2f36; border-radius: 999px; padding: 4px 10px; }
+        border: 1px solid var(--au-border-2); border-radius: 999px; padding: 4px 10px; }
       /* footer + overlay */
       .status { color: var(--au-text-2); font: var(--au-caption); padding: 6px 2px; min-height: 1.3em; }
       .status b { color: var(--au-text); }
       .overlay {
-        position: fixed; inset: 0; background: rgba(8,9,11,.72);
-        display: none; align-items: center; justify-content: center; backdrop-filter: blur(6px);
+        position: fixed; inset: 0; background: var(--au-scrim);
+        display: flex; align-items: center; justify-content: center; backdrop-filter: blur(6px);
+        opacity: 0; visibility: hidden;
+        transition: opacity var(--au-dur-3) var(--au-ease-out),
+                    visibility 0s linear var(--au-dur-3);
       }
-      .overlay.open { display: flex; }
+      .overlay.open { opacity: 1; visibility: visible; transition: opacity var(--au-dur-3) var(--au-ease-out); }
       .sheet {
         width: min(560px, 86vw); background: var(--au-surface);
-        border: 1px solid #2c2f36; border-radius: var(--au-radius-xl);
+        border: 1px solid var(--au-border-2); border-radius: var(--au-radius-xl);
         padding: 28px; box-shadow: 0 24px 64px rgba(0,0,0,.6);
       }
+      .overlay.open .sheet { animation: au-pop var(--au-dur-3) var(--au-ease-spring); }
+      :root[data-au-motion="reduced"] .overlay { transition: none; }
       .sheet h3 { font: var(--au-display); font-size: 26px; margin: 0 0 6px; }
       .sheet .meta { color: var(--au-text-2); margin-bottom: 18px; }
-      .sheet .bar { height: 6px; background: #2a2d34; border-radius: 4px; overflow: hidden; margin-bottom: 18px; }
+      .sheet .bar { height: 6px; background: var(--au-surface-2); border-radius: 4px; overflow: hidden; margin-bottom: 18px; }
       .sheet .bar > i { display: block; height: 100%; background: var(--au-primary); }
       .sheet .btns { display: flex; gap: 12px; }
       .sheet button {
@@ -211,6 +234,8 @@
         else if (id === "apps") await buildApps();
         else if (id === "search") buildSearch();
         else buildSettings();
+        // Restart the section entrance animation.
+        mainEl.classList.remove("enter"); void mainEl.offsetWidth; mainEl.classList.add("enter");
       }
 
       const mediaCard = (m) => {
@@ -335,7 +360,8 @@
         setStatus(`Opened recording <b>${r.title}</b>`);
       }
       const switchInput = (name) => name && setStatus(`Switching input → <b>${name}</b>`);
-      const kindGlyph = (k) => (k === "Tuner" ? "📡" : k === "HDMI" ? "⊞" : "◉");
+      const kindGlyph = (k) =>
+        ({ Tuner: "📡", HDMI: "⊞", Component: "🎛", VGA: "🖥", Composite: "◉" }[k] || "◉");
       function openChannel(c) {
         sheetEl.innerHTML = `
           <h3>${c.number} · ${c.name}</h3>
@@ -389,6 +415,20 @@
         state.rows = [[input], ...resultRows];
       }
 
+      // Apply a Settings toggle to the live theme. Theme + Accent + Reduced Motion
+      // all flow through CSS custom properties on <html>, so the whole UI re-themes.
+      const ACCENTS = { Blue: "#3A7AFE", Purple: "#5C6BC0", Green: "#34C759", Orange: "#F4B400" };
+      function applySetting(name, val) {
+        const root = document.documentElement;
+        if (name === "Theme") root.setAttribute("data-au-theme", val.toLowerCase());
+        else if (name === "Accent") {
+          const c = ACCENTS[val];
+          if (c) { root.style.setProperty("--au-primary", c); root.style.setProperty("--au-accent", c); }
+        } else if (name === "Reduced Motion") {
+          root.setAttribute("data-au-motion", val === "On" ? "reduced" : "auto");
+        }
+      }
+
       function buildSettings() {
         const h = document.createElement("h2"); h.textContent = "Settings"; mainEl.appendChild(h);
         const chips = document.createElement("div"); chips.className = "chips"; mainEl.appendChild(chips);
@@ -410,9 +450,7 @@
           const el = document.createElement("div"); el.className = "setrow"; el.tabIndex = 0;
           const render = () => el.innerHTML = `<span>${t.name}</span><span class="val">${t.vals[i]}</span>`;
           render();
-          el._cycle = () => { i = (i + 1) % t.vals.length; render();
-            if (t.name === "Reduced Motion")
-              document.documentElement.setAttribute("data-au-motion", i ? "reduced" : "auto");
+          el._cycle = () => { i = (i + 1) % t.vals.length; render(); applySetting(t.name, t.vals[i]);
             setStatus(`<b>${t.name}</b> → ${t.vals[i]}`); };
           el._enter = el._cycle;
           el.addEventListener("click", () => el._cycle());

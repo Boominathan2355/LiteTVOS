@@ -45,7 +45,7 @@ pub struct Channel {
 pub struct Input {
     pub id: &'static str,
     pub name: &'static str,
-    /// "Tuner", "HDMI", or "Composite".
+    /// "Tuner", "HDMI", "Component", "VGA", or "Composite".
     pub kind: &'static str,
 }
 
@@ -102,6 +102,7 @@ pub static APPS: &[App] = &[
     App { id: "browser",   name: "Browser",   glyph: "◎",  accent: "#5C6BC0", category: "System" },
     App { id: "photos",    name: "Photos",    glyph: "❖",  accent: "#3A7AFE", category: "System" },
     App { id: "podcasts",  name: "Podcasts",  glyph: "◖",  accent: "#EA4335", category: "Audio" },
+    App { id: "camera",    name: "Camera",    glyph: "📷", accent: "#34C759", category: "System" },
     App { id: "store",     name: "LiteStore", glyph: "⬡",  accent: "#F4B400", category: "System" },
     App { id: "settings",  name: "Settings",  glyph: "⚙",  accent: "#9AA0A6", category: "System" },
     App { id: "live-tv",   name: "Live TV",   glyph: "📺", accent: "#5C6BC0", category: "Live" },
@@ -121,12 +122,15 @@ pub static CHANNELS: &[Channel] = &[
 
 /// Signal inputs: tuners and external sources.
 pub static INPUTS: &[Input] = &[
-    Input { id: "antenna", name: "Antenna (ATSC)", kind: "Tuner" },
-    Input { id: "cable",   name: "Cable (QAM)",    kind: "Tuner" },
-    Input { id: "hdmi1",   name: "HDMI 1",         kind: "HDMI" },
-    Input { id: "hdmi2",   name: "HDMI 2",         kind: "HDMI" },
-    Input { id: "hdmi3",   name: "HDMI 3 (eARC)",  kind: "HDMI" },
-    Input { id: "av",      name: "AV",             kind: "Composite" },
+    Input { id: "antenna", name: "Antenna (ATSC)",    kind: "Tuner" },
+    Input { id: "cable",   name: "Cable (QAM)",       kind: "Tuner" },
+    Input { id: "hdmi1",   name: "HDMI 1",            kind: "HDMI" },
+    Input { id: "hdmi2",   name: "HDMI 2",            kind: "HDMI" },
+    Input { id: "hdmi3",   name: "HDMI 3 (eARC)",     kind: "HDMI" },
+    Input { id: "comp",    name: "Component (YPbPr)", kind: "Component" },
+    Input { id: "vga",     name: "VGA (PC)",          kind: "VGA" },
+    Input { id: "av1",     name: "AV 1",              kind: "Composite" },
+    Input { id: "av2",     name: "AV 2",              kind: "Composite" },
 ];
 
 /// DVR library — recorded, recording, and scheduled programs.
@@ -247,9 +251,17 @@ mod tests {
         // Both cable and antenna sources are present.
         assert!(channels().iter().any(|c| c.source == "Cable"));
         assert!(channels().iter().any(|c| c.source == "Antenna"));
-        // Tuner + HDMI inputs exist.
-        assert!(inputs().iter().any(|i| i.kind == "Tuner"));
-        assert!(inputs().iter().any(|i| i.kind == "HDMI"));
+        // Tuner, HDMI, Component, VGA, and Composite inputs all exist.
+        for k in ["Tuner", "HDMI", "Component", "VGA", "Composite"] {
+            assert!(inputs().iter().any(|i| i.kind == k), "missing input kind {k}");
+        }
+        // Two composite AV inputs.
+        assert_eq!(inputs().iter().filter(|i| i.kind == "Composite").count(), 2);
+    }
+
+    #[test]
+    fn camera_app_present() {
+        assert_eq!(find_app("camera").unwrap().name, "Camera");
     }
 
     #[test]

@@ -70,6 +70,11 @@ Storage · Developer Mode
 Appearance · Display · Network · Storage · Applications · Developer · Security ·
 Accessibility · Accounts · Updates · About
 
+**Appearance & Themes** — **Dark** (default) and **Light** themes, plus a system
+**accent** color (Blue / Purple / Green / Orange). Themes are pure design-token
+swaps (color only — radius, spacing, motion are shared), so the whole UI re-skins
+instantly and consistently. See [Design System](04-Design-System.md).
+
 ## Media Hub
 
 - Unified player
@@ -85,7 +90,8 @@ Accessibility · Accounts · Updates · About
 Cable and antenna tuner support plus external inputs:
 
 - **Channel guide** — now/next EPG per channel, grouped by source (Cable / Antenna)
-- **Inputs** — Antenna (ATSC), Cable (QAM), HDMI 1–3 (eARC), AV
+- **Inputs** — Antenna (ATSC), Cable (QAM), HDMI 1–3 (eARC), Component (YPbPr),
+  VGA (PC), AV 1 / AV 2 (composite)
 - **Categories** — News, Sports, Movies, Kids, Music, Documentary, Lifestyle
 - **Quick tune** — select a channel to watch live; channels are searchable
   through [universal search](#search)

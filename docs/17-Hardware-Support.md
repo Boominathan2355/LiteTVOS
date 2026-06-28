@@ -46,7 +46,7 @@ inputs:
 | Antenna (over-the-air) | **ATSC 1.0 / ATSC 3.0 (NextGen TV)**, DVB-T/T2, ISDB-T |
 | Cable | **QAM**, DVB-C; CableCARD where required |
 | Satellite | DVB-S/S2 (with compatible front-end) |
-| External | **HDMI 1–3** (one eARC), AV / composite |
+| External | **HDMI 1–3** (one eARC), **Component (YPbPr)**, **VGA (PC)**, **AV 1 / AV 2** composite |
 
 - **Channel guide / EPG** — now/next per channel, driven by
   [`aurora-catalog`](../frameworks/aurora-catalog) (`GET /api/channels`).

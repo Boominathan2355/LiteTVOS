@@ -90,7 +90,7 @@ TEMPLATE.innerHTML = `
     /* Continue Watching progress bar */
     .progress {
       position: absolute; left: 0; right: 0; bottom: 0;
-      height: 4px; background: rgba(255,255,255,0.18);
+      height: 4px; background: var(--au-track, rgba(255,255,255,0.18));
     }
     .progress > i {
       display: block; height: 100%; width: var(--_pct, 0%);
