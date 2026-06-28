@@ -40,10 +40,20 @@ Crates: `frameworks/aurora-tokens` (design tokens), `frameworks/aurora-focus`
 (TV focus engine), `launcher` (shell binary). The Smithay compositor + Skia
 renderer attach behind the launcher's `render` feature.
 
-**Live demo** (the launcher doubles as a tiny web host): set `PORT` and it serves
-the Aurora UI web demo plus a `/api/state` focus trace — used for the Render
-deploy ([render.yaml](render.yaml)). `PORT=8080 cargo run`. This is a demo host,
-not the OS itself.
+**Live demo + backend:** <https://litetvos.onrender.com> (the launcher doubles as
+a std-only HTTP backend when `PORT` is set — `PORT=8080 cargo run`). Deploy config
+in [render.yaml](render.yaml). This is a demo host, not the OS itself.
+
+Backend API (JSON, driven by the `aurora-focus` engine):
+
+| Endpoint | Returns |
+|----------|---------|
+| `GET /` | The Aurora UI web demo |
+| `GET /api/home` | Home-screen rows |
+| `GET /api/navigate?row=&col=&dir=` | Stateless focus move (`dir`=up\|down\|left\|right) |
+| `GET /api/state` | Scripted navigation trace |
+| `GET /api/specs` | Engineering targets (512 MB, 60 FPS, …) |
+| `GET /healthz` | Health check |
 
 **OS image** (Yocto → QEMU aarch64): see [build/README.md](build/README.md).
 

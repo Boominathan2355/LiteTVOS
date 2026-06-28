@@ -1,8 +1,18 @@
-//! Minimal std-only HTTP server for hosted demos (e.g. Render).
+//! LiteTV OS demo backend — std-only HTTP server (no external crates).
 //!
-//! A LiteTV device never runs this — it exists so the Aurora UI web prototype
-//! and the focus engine can be shown live from a cloud Web Service that must
-//! bind `$PORT` and stay running. No external crates.
+//! A real device never runs this. It exists so the Aurora UI prototype and the
+//! `aurora-focus` engine can be shown live from a hosted Web Service that must
+//! bind `$PORT` and stay running (e.g. Render).
+//!
+//! Static:
+//!   GET /                              the Aurora UI web demo
+//!   GET /tokens.css, /components/aurora-card.js
+//! Backend API (JSON):
+//!   GET /api/home                      home-screen rows
+//!   GET /api/navigate?row=&col=&dir=   stateless focus move (dir=up|down|left|right)
+//!   GET /api/state                     scripted navigation trace
+//!   GET /api/specs                     engineering targets
+//!   GET /healthz                       health check
 
 use std::io::{BufRead, BufReader, Write};
 use std::net::{TcpListener, TcpStream};
@@ -11,10 +21,19 @@ use std::time::Duration;
 
 use aurora_focus::{Direction, FocusGrid, Row};
 
-// Embedded at compile time so there is no runtime filesystem dependency.
 const DEMO_HTML: &str = include_str!("../../frameworks/aurora-ui/demo.html");
 const TOKENS_CSS: &str = include_str!("../../frameworks/aurora-ui/tokens.css");
 const CARD_JS: &str = include_str!("../../frameworks/aurora-ui/components/aurora-card.js");
+
+/// The default home screen, single source of truth for the backend.
+fn home_grid() -> FocusGrid {
+    FocusGrid::new(vec![
+        Row::new("Continue Watching", 6),
+        Row::new("Pinned Apps", 8),
+        Row::new("Media Recommendations", 12),
+        Row::new("Recently Opened", 5),
+    ])
+}
 
 /// Bind `0.0.0.0:port` and serve until killed.
 pub fn run(port: u16) {
@@ -23,7 +42,7 @@ pub fn run(port: u16) {
         eprintln!("FATAL: cannot bind {addr}: {e}");
         std::process::exit(1);
     });
-    println!("LiteTV OS · Aurora UI demo server listening on http://{addr}");
+    println!("LiteTV OS · Aurora UI backend listening on http://{addr}");
 
     for stream in listener.incoming() {
         match stream {
@@ -46,14 +65,14 @@ fn handle(mut stream: TcpStream) {
     if reader.read_line(&mut request_line).is_err() {
         return;
     }
-    // "GET /path HTTP/1.1"
-    let path = request_line.split_whitespace().nth(1).unwrap_or("/");
+    let target = request_line.split_whitespace().nth(1).unwrap_or("/");
 
-    let (status, ctype, body) = route(path);
+    let (status, ctype, body) = route(target);
     let response = format!(
         "HTTP/1.1 {status}\r\n\
          Content-Type: {ctype}\r\n\
          Content-Length: {len}\r\n\
+         Access-Control-Allow-Origin: *\r\n\
          Cache-Control: no-cache\r\n\
          Connection: close\r\n\r\n",
         len = body.len()
@@ -63,7 +82,8 @@ fn handle(mut stream: TcpStream) {
     let _ = stream.flush();
 }
 
-fn route(path: &str) -> (&'static str, &'static str, String) {
+fn route(target: &str) -> (&'static str, &'static str, String) {
+    let (path, query) = target.split_once('?').unwrap_or((target, ""));
     match path {
         "/" | "/index.html" | "/demo.html" => {
             ("200 OK", "text/html; charset=utf-8", DEMO_HTML.to_string())
@@ -74,21 +94,73 @@ fn route(path: &str) -> (&'static str, &'static str, String) {
             "application/javascript; charset=utf-8",
             CARD_JS.to_string(),
         ),
+        "/api/home" => ("200 OK", "application/json", home_json()),
+        "/api/navigate" => navigate(query),
         "/api/state" => ("200 OK", "application/json", state_json()),
+        "/api/specs" => ("200 OK", "application/json", specs_json()),
         "/healthz" => ("200 OK", "text/plain", "ok".to_string()),
-        _ => ("404 Not Found", "text/plain", "not found".to_string()),
+        _ => (
+            "404 Not Found",
+            "application/json",
+            "{\"error\":\"not found\"}".to_string(),
+        ),
     }
 }
 
-/// JSON trace of the focus engine driving the default home screen — the same
-/// model the native shell uses, exposed for the live demo.
+// --- API handlers ---------------------------------------------------------
+
+fn home_json() -> String {
+    let grid = home_grid();
+    let rows: Vec<String> = grid
+        .rows()
+        .iter()
+        .enumerate()
+        .map(|(i, r)| format!("{{\"index\":{i},\"title\":\"{}\",\"items\":{}}}", r.title, r.len))
+        .collect();
+    format!("{{\"shell\":\"Aurora UI\",\"rows\":[{}]}}", rows.join(","))
+}
+
+/// Stateless focus move: client passes current `row`/`col` and a `dir`.
+fn navigate(query: &str) -> (&'static str, &'static str, String) {
+    let dir = match param(query, "dir").and_then(parse_dir) {
+        Some(d) => d,
+        None => {
+            return (
+                "400 Bad Request",
+                "application/json",
+                "{\"error\":\"missing or invalid dir (up|down|left|right)\"}".to_string(),
+            )
+        }
+    };
+    let row = param(query, "row").and_then(|s| s.parse().ok()).unwrap_or(0);
+    let col = param(query, "col").and_then(|s| s.parse().ok()).unwrap_or(0);
+
+    let mut grid = home_grid();
+    grid.set_focus(row, col);
+    let moved = grid.navigate(dir);
+    let f = grid.focus();
+    let title = grid.focused_row_title().unwrap_or("");
+    (
+        "200 OK",
+        "application/json",
+        format!(
+            "{{\"dir\":\"{dir:?}\",\"moved\":{moved},\"row\":{},\"col\":{},\"title\":\"{title}\"}}",
+            f.row, f.col
+        ),
+    )
+}
+
+/// Engineering targets (docs/13-Roadmap.md), served as JSON.
+fn specs_json() -> String {
+    "{\"total_ram_mb_max\":512,\"cpu_idle_pct_max\":2,\"boot_s_max\":20,\
+      \"launcher_start_ms_max\":500,\"app_launch_s_max\":1,\"animation_fps\":60,\
+      \"system_image_gb_max\":2.5}"
+        .to_string()
+}
+
+/// Scripted navigation trace — same model the native shell runs.
 fn state_json() -> String {
-    let mut grid = FocusGrid::new(vec![
-        Row::new("Continue Watching", 6),
-        Row::new("Pinned Apps", 8),
-        Row::new("Media Recommendations", 12),
-        Row::new("Recently Opened", 5),
-    ]);
+    let mut grid = home_grid();
     let script = [
         Direction::Right,
         Direction::Right,
@@ -97,7 +169,6 @@ fn state_json() -> String {
         Direction::Left,
         Direction::Up,
     ];
-
     let mut steps = vec![step_obj("initial", &grid)];
     for dir in script {
         grid.navigate(dir);
@@ -113,4 +184,23 @@ fn step_obj(action: &str, grid: &FocusGrid) -> String {
         "{{\"action\":\"{action}\",\"row\":{},\"col\":{},\"title\":\"{title}\"}}",
         f.row, f.col
     )
+}
+
+// --- tiny query helpers ---------------------------------------------------
+
+fn param<'a>(query: &'a str, key: &str) -> Option<&'a str> {
+    query.split('&').find_map(|kv| {
+        let (k, v) = kv.split_once('=')?;
+        (k == key).then_some(v)
+    })
+}
+
+fn parse_dir(s: &str) -> Option<Direction> {
+    match s.to_ascii_lowercase().as_str() {
+        "up" => Some(Direction::Up),
+        "down" => Some(Direction::Down),
+        "left" => Some(Direction::Left),
+        "right" => Some(Direction::Right),
+        _ => None,
+    }
 }

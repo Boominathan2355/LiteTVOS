@@ -71,6 +71,15 @@ impl FocusGrid {
         self.rows.get(self.focus.row).map(|r| r.title.as_str())
     }
 
+    /// Place focus at an arbitrary cell, clamping row and column into range.
+    /// Lets a stateless caller (e.g. the backend API) navigate from any point.
+    pub fn set_focus(&mut self, row: usize, col: usize) {
+        let row = row.min(self.rows.len().saturating_sub(1));
+        let col = self.clamp_col(row, col);
+        self.focus = Focus { row, col };
+        self.desired_col = col;
+    }
+
     fn clamp_col(&self, row: usize, want: usize) -> usize {
         match self.rows.get(row) {
             Some(r) if r.len > 0 => want.min(r.len - 1),
@@ -177,5 +186,14 @@ mod tests {
     fn cannot_move_above_top() {
         let mut g = grid();
         assert!(!g.navigate(Direction::Up));
+    }
+
+    #[test]
+    fn set_focus_clamps_into_range() {
+        let mut g = grid();
+        g.set_focus(99, 99); // last row is "Recommended" (8 items)
+        assert_eq!(g.focus(), Focus { row: 2, col: 7 });
+        g.set_focus(1, 99); // "Apps" has 2 items
+        assert_eq!(g.focus(), Focus { row: 1, col: 1 });
     }
 }
