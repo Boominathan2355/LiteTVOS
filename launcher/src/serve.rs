@@ -4,7 +4,7 @@
 //! `aurora-focus` / `aurora-catalog` crates can be shown live from a hosted Web
 //! Service that must bind `$PORT` and stay running (e.g. Render).
 //!
-//! Static:  GET /  ·  /tokens.css  ·  /components/aurora-card.js
+//! Static:  GET /  ·  /tokens.css  ·  /components/aurora-card.js  ·  /icons.js
 //! API:     GET /api/home  /api/apps  /api/channels  /api/inputs  /api/recordings
 //!          GET /api/search?q=  /api/item?id=
 //!          GET /api/navigate?row=&col=&dir=   /api/specs  /api/state  /healthz
@@ -20,6 +20,7 @@ use aurora_focus::{Direction, FocusGrid, Row};
 const DEMO_HTML: &str = include_str!("../../frameworks/aurora-ui/demo.html");
 const TOKENS_CSS: &str = include_str!("../../frameworks/aurora-ui/tokens.css");
 const CARD_JS: &str = include_str!("../../frameworks/aurora-ui/components/aurora-card.js");
+const ICONS_JS: &str = include_str!("../../frameworks/aurora-ui/icons.js");
 
 /// Focus grid mirroring the catalog's home rows, so /api/navigate stays in sync
 /// with /api/home.
@@ -82,6 +83,11 @@ fn route(target: &str) -> (&'static str, &'static str, String) {
             "application/javascript; charset=utf-8",
             CARD_JS.to_string(),
         ),
+        "/icons.js" => (
+            "200 OK",
+            "application/javascript; charset=utf-8",
+            ICONS_JS.to_string(),
+        ),
         "/api/home" => json(home_json()),
         "/api/apps" => json(apps_json()),
         "/api/channels" => json(channels_json()),
@@ -117,9 +123,9 @@ fn media_json(m: &cat::MediaItem) -> String {
 
 fn app_json(a: &cat::App) -> String {
     format!(
-        "{{\"type\":\"app\",\"id\":\"{}\",\"name\":\"{}\",\"glyph\":\"{}\",\
+        "{{\"type\":\"app\",\"id\":\"{}\",\"name\":\"{}\",\"icon\":\"{}\",\
           \"accent\":\"{}\",\"category\":\"{}\"}}",
-        esc(a.id), esc(a.name), esc(a.glyph), esc(a.accent), esc(a.category)
+        esc(a.id), esc(a.name), esc(a.icon), esc(a.accent), esc(a.category)
     )
 }
 

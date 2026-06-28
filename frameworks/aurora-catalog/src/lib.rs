@@ -21,7 +21,8 @@ pub struct MediaItem {
 pub struct App {
     pub id: &'static str,
     pub name: &'static str,
-    pub glyph: &'static str,
+    /// Name of an Aurora UI SVG icon (see `frameworks/aurora-ui/icons.js`).
+    pub icon: &'static str,
     pub accent: &'static str,
     pub category: &'static str,
 }
@@ -93,19 +94,19 @@ pub static MEDIA: &[MediaItem] = &[
 ];
 
 pub static APPS: &[App] = &[
-    App { id: "streamly",  name: "Streamly",  glyph: "S",  accent: "#EA4335", category: "Streaming" },
-    App { id: "tunebox",   name: "TuneBox",   glyph: "♪",  accent: "#34C759", category: "Music" },
-    App { id: "playcube",  name: "PlayCube",  glyph: "▶",  accent: "#3A7AFE", category: "Streaming" },
-    App { id: "newsnow",   name: "NewsNow",   glyph: "N",  accent: "#F4B400", category: "News" },
-    App { id: "kidzone",   name: "KidZone",   glyph: "★",  accent: "#8E7CFF", category: "Kids" },
-    App { id: "fittv",     name: "FitTV",     glyph: "✛",  accent: "#34C759", category: "Fitness" },
-    App { id: "browser",   name: "Browser",   glyph: "◎",  accent: "#5C6BC0", category: "System" },
-    App { id: "photos",    name: "Photos",    glyph: "❖",  accent: "#3A7AFE", category: "System" },
-    App { id: "podcasts",  name: "Podcasts",  glyph: "◖",  accent: "#EA4335", category: "Audio" },
-    App { id: "camera",    name: "Camera",    glyph: "📷", accent: "#34C759", category: "System" },
-    App { id: "store",     name: "LiteStore", glyph: "⬡",  accent: "#F4B400", category: "System" },
-    App { id: "settings",  name: "Settings",  glyph: "⚙",  accent: "#9AA0A6", category: "System" },
-    App { id: "live-tv",   name: "Live TV",   glyph: "📺", accent: "#5C6BC0", category: "Live" },
+    App { id: "streamly",  name: "Streamly",  icon: "film",    accent: "#EA4335", category: "Streaming" },
+    App { id: "tunebox",   name: "TuneBox",   icon: "music",   accent: "#34C759", category: "Music" },
+    App { id: "playcube",  name: "PlayCube",  icon: "playbox", accent: "#3A7AFE", category: "Streaming" },
+    App { id: "newsnow",   name: "NewsNow",   icon: "news",    accent: "#F4B400", category: "News" },
+    App { id: "kidzone",   name: "KidZone",   icon: "star",    accent: "#8E7CFF", category: "Kids" },
+    App { id: "fittv",     name: "FitTV",     icon: "pulse",   accent: "#34C759", category: "Fitness" },
+    App { id: "browser",   name: "Browser",   icon: "globe",   accent: "#5C6BC0", category: "System" },
+    App { id: "photos",    name: "Photos",    icon: "image",   accent: "#3A7AFE", category: "System" },
+    App { id: "podcasts",  name: "Podcasts",  icon: "mic",     accent: "#EA4335", category: "Audio" },
+    App { id: "camera",    name: "Camera",    icon: "camera",  accent: "#34C759", category: "System" },
+    App { id: "store",     name: "LiteStore", icon: "bag",     accent: "#F4B400", category: "System" },
+    App { id: "settings",  name: "Settings",  icon: "sliders", accent: "#9AA0A6", category: "System" },
+    App { id: "live-tv",   name: "Live TV",   icon: "tv",      accent: "#5C6BC0", category: "Live" },
 ];
 
 /// Live TV channels — a mix of cable (QAM) and antenna (ATSC) sources.

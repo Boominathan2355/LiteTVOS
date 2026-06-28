@@ -42,6 +42,12 @@ shared spacing, color, typography, and animation timing.
 - Adaptive icons
 - SVG based
 
+The reference set lives in [`frameworks/aurora-ui/icons.js`](../frameworks/aurora-ui/icons.js):
+line icons on a 24×24 grid drawn with `stroke="currentColor"`, so they inherit
+text color and re-theme automatically (no emoji, no icon font, no raster assets).
+Apps reference an icon by name via [`aurora-catalog`](../frameworks/aurora-catalog)
+(`App.icon`), and the launcher renders it with `icon(name)`.
+
 ## Animation System
 
 **Types:** Spring · Fade · Slide · Scale · Depth · Shared Element
