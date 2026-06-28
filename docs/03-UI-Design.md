@@ -70,10 +70,11 @@ Storage · Developer Mode
 Appearance · Display · Network · Storage · Applications · Developer · Security ·
 Accessibility · Accounts · Updates · About
 
-**Appearance & Themes** — **Dark** (default) and **Light** themes, plus a system
-**accent** color (Blue / Purple / Green / Orange). Themes are pure design-token
-swaps (color only — radius, spacing, motion are shared), so the whole UI re-skins
-instantly and consistently. See [Design System](04-Design-System.md).
+**Appearance & Themes** — **Dark** (default), **Light**, and **Glass** (a
+deep-blue, frosted "aurora glass" look) themes, plus a system **accent** color
+(Blue / Purple / Green / Orange). Themes are pure design-token swaps (color +
+translucency/blur only — radius, spacing, motion are shared), so the whole UI
+re-skins instantly and consistently. See [Design System](04-Design-System.md).
 
 ## Media Hub
 
