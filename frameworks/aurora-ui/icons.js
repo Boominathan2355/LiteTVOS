@@ -42,6 +42,20 @@ const ICONS = {
   monitor: '<rect x="3" y="4" width="18" height="13" rx="2"/><path d="M8 21h8M12 17v4"/>',
   jack:    '<circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="1.8" fill="currentColor" stroke="none"/>',
 
+  // --- shell / chrome ---
+  home:    '<path d="M4 11l8-7 8 7"/><path d="M6 10v9h5v-6h2v6h5v-9"/>',
+  grid:    '<rect x="4" y="4" width="6" height="6" rx="1.5"/><rect x="14" y="4" width="6" height="6" rx="1.5"/><rect x="4" y="14" width="6" height="6" rx="1.5"/><rect x="14" y="14" width="6" height="6" rx="1.5"/>',
+  media:   '<circle cx="12" cy="12" r="9"/><path d="M10 8.5l6 3.5-6 3.5z" fill="currentColor" stroke="none"/>',
+  gamepad: '<rect x="2.5" y="8" width="19" height="9" rx="4"/><path d="M8 12.5H5M6.5 11v3"/><path d="M15.5 11.5h.01M18 13.5h.01"/>',
+  cog:     '<circle cx="12" cy="12" r="3.2"/><path d="M12 2.5v3M12 18.5v3M21.5 12h-3M5.5 12h-3M18.7 5.3l-2.1 2.1M7.4 16.6l-2.1 2.1M18.7 18.7l-2.1-2.1M7.4 7.4L5.3 5.3"/>',
+  user:    '<circle cx="12" cy="8" r="4"/><path d="M5 20a7 7 0 0 1 14 0"/>',
+  wifi:    '<path d="M4.5 12.5a10 10 0 0 1 15 0M7.5 15.5a6 6 0 0 1 9 0"/><circle cx="12" cy="18.5" r="1" fill="currentColor" stroke="none"/>',
+  folder:  '<path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>',
+  bluetooth:'<path d="M7 7.5l10 9-5 4V3.5l5 4-10 9"/>',
+  chevron: '<path d="M9 6l6 6-6 6"/>',
+  sun:     '<circle cx="12" cy="12" r="4"/><path d="M12 2v2.5M12 19.5V22M2 12h2.5M19.5 12H22M5 5l1.7 1.7M17.3 17.3L19 19M5 19l1.7-1.7M17.3 6.7L19 5"/>',
+  moon:    '<path d="M20 14.5A8 8 0 1 1 9.5 4 6.5 6.5 0 0 0 20 14.5z"/>',
+
   dot:     '<circle cx="12" cy="12" r="3" fill="currentColor" stroke="none"/>',
 };
 

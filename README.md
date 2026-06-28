@@ -44,10 +44,11 @@ renderer attach behind the launcher's `render` feature.
 a std-only HTTP backend when `PORT` is set — `PORT=8080 cargo run`). Deploy config
 in [render.yaml](render.yaml). This is a demo host, not the OS itself.
 
-The page is a full multi-section launcher
-(**Home · Live TV · Apps · Search · Settings**) with focus navigation, a detail
-overlay, a DVR recordings strip, and a live clock — all data served by the Rust
-backend (`aurora-catalog` + `aurora-focus`):
+The page is a full launcher shell — **left sidebar** (Home · Search · Apps ·
+Live TV · Media · Settings), a **top search bar** with status + clock, landscape
+**Continue Watching** heroes, an app row, Recently-Used chips, a DVR recordings
+strip, light/dark theming, and SVG icons — all focus-navigable and data-served by
+the Rust backend (`aurora-catalog` + `aurora-focus`):
 
 | Endpoint | Returns |
 |----------|---------|
