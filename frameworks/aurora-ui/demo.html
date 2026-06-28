@@ -57,6 +57,24 @@
         box-shadow: 0 0 0 3px color-mix(in srgb, var(--au-primary) 70%, transparent),
                     0 12px 32px rgba(0,0,0,.55);
         background: var(--au-surface-2); }
+      .tile.input { aspect-ratio: auto; padding: 16px 12px; }
+      /* live tv guide */
+      .guide { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; padding: 12px 4px; }
+      .chcard {
+        background: var(--au-surface); border: 1px solid #23262d;
+        border-left: 4px solid var(--ac, var(--au-primary));
+        border-radius: var(--au-radius-md); padding: 14px 16px; outline: none; cursor: pointer;
+        transition: transform var(--au-dur-3) var(--au-ease-spring),
+                    box-shadow var(--au-dur-3) var(--au-ease-out);
+      }
+      .chcard:focus { transform: scale(1.03); background: var(--au-surface-2);
+        box-shadow: 0 0 0 3px color-mix(in srgb, var(--au-primary) 60%, transparent), 0 12px 32px rgba(0,0,0,.5); }
+      .chhead { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; }
+      .chhead .num { font-weight: 700; color: var(--ac, #fff); }
+      .chhead .src { font: var(--au-caption); color: var(--au-text-2); }
+      .chname { font-size: 16px; font-weight: 600; margin-bottom: 8px; }
+      .chnow, .chnext { font: var(--au-caption); color: var(--au-text-2); margin-top: 2px; }
+      .chnow b, .chnext b { color: var(--au-text); margin-right: 6px; }
       /* search */
       .search-box {
         width: 100%; box-sizing: border-box; font: var(--au-body);
@@ -128,6 +146,7 @@
 
       const SECTIONS = [
         { id: "home", label: "Home" },
+        { id: "livetv", label: "Live TV" },
         { id: "apps", label: "Apps" },
         { id: "search", label: "Search" },
         { id: "settings", label: "Settings" },
@@ -174,6 +193,7 @@
       async function loadSection(id) {
         state.section = id; state.onInput = null; mainEl.innerHTML = "";
         if (id === "home") await buildHome();
+        else if (id === "livetv") await buildLiveTV();
         else if (id === "apps") await buildApps();
         else if (id === "search") buildSearch();
         else buildSettings();
@@ -215,12 +235,67 @@
           t.innerHTML = `<span class="glyph" style="background:${a.accent}">${a.glyph}</span>
                          <span class="name">${a.name}</span>`;
           t.dataset.app = a.name;
+          t._enter = () => launch(a.name);
           t.addEventListener("click", () => launch(a.name));
           grid.appendChild(t); return t;
         });
         mainEl.appendChild(grid);
         state.rows = chunk(tiles, COLS);
-        state.onEnter = (el) => launch(el?.dataset?.app);
+      }
+
+      async function buildLiveTV() {
+        const [inp, chs] = await Promise.all([api("/api/inputs"), api("/api/channels")]);
+        const inputs = inp?.inputs ?? [], channels = chs?.channels ?? [];
+        state.rows = [];
+
+        const ih = document.createElement("h2"); ih.textContent = "Inputs"; mainEl.appendChild(ih);
+        const irow = document.createElement("div"); irow.className = "row";
+        const inputEls = inputs.map((i) => {
+          const t = document.createElement("div"); t.className = "tile input"; t.tabIndex = 0;
+          t.innerHTML = `<span class="glyph" style="background:var(--au-surface-2)">${kindGlyph(i.kind)}</span>
+                         <span class="name">${i.name}</span>`;
+          t._enter = () => switchInput(i.name);
+          t.addEventListener("click", () => switchInput(i.name));
+          irow.appendChild(t); return t;
+        });
+        mainEl.appendChild(irow);
+        if (inputEls.length) state.rows.push(inputEls);
+
+        const ch = document.createElement("h2"); ch.textContent = "Channel Guide"; mainEl.appendChild(ch);
+        const guide = document.createElement("div"); guide.className = "guide";
+        const chEls = channels.map((c) => {
+          const card = document.createElement("div"); card.className = "chcard"; card.tabIndex = 0;
+          card.style.setProperty("--ac", c.accent);
+          card.innerHTML = `
+            <div class="chhead"><span class="num">${c.number}</span><span class="src">${c.source}</span></div>
+            <div class="chname">${c.name}</div>
+            <div class="chnow"><b>Now</b>${c.now}</div>
+            <div class="chnext"><b>Next</b>${c.next}</div>`;
+          card._enter = () => openChannel(c);
+          card.addEventListener("click", () => openChannel(c));
+          guide.appendChild(card); return card;
+        });
+        mainEl.appendChild(guide);
+        state.rows.push(...chunk(chEls, 3));
+      }
+      const switchInput = (name) => name && setStatus(`Switching input → <b>${name}</b>`);
+      const kindGlyph = (k) => (k === "Tuner" ? "📡" : k === "HDMI" ? "⊞" : "◉");
+      function openChannel(c) {
+        sheetEl.innerHTML = `
+          <h3>${c.number} · ${c.name}</h3>
+          <div class="meta">${c.category} · ${c.source}</div>
+          <div class="chnow" style="font-size:15px"><b>Now</b>${c.now}</div>
+          <div class="chnext" style="font-size:15px;margin-bottom:18px"><b>Next</b>${c.next}</div>
+          <div class="btns"><button class="play" data-x="watch">▶ Watch Live</button><button data-x="close">Close</button></div>`;
+        overlayEl.classList.add("open");
+        const btns = [...sheetEl.querySelectorAll("button")]; btns[0].focus();
+        sheetEl.onkeydown = (e) => { if (e.key === "ArrowLeft" || e.key === "ArrowRight") { e.preventDefault();
+          btns[(btns.indexOf(document.activeElement) + 1) % btns.length].focus(); } };
+        btns.forEach((b) => b.addEventListener("click", () => {
+          if (b.dataset.x === "watch") setStatus(`📺 <b>Tuned to ${c.number}</b> ${c.name} — ${c.now}`);
+          closeOverlay();
+        }));
+        setStatus(`Opened <b>${c.name}</b>`);
       }
 
       function buildSearch() {
@@ -244,13 +319,14 @@
           rebuildSearchRows(input, chunk(els, COLS));
         };
         input.addEventListener("input", () => { clearTimeout(timer); timer = setTimeout(run, 160); });
+        input._enter = () => navContent("down"); // Enter → jump to first result
         state.onInput = input;
         state.rows = [[input]];
-        state.onEnter = () => {}; // results handle their own
       }
       function appResultTile(a, container) {
         const t = document.createElement("div"); t.className = "tile"; t.tabIndex = 0;
         t.innerHTML = `<span class="glyph" style="background:${a.accent}">${a.glyph}</span><span class="name">${a.name}</span>`;
+        t._enter = () => launch(a.name);
         t.addEventListener("click", () => launch(a.name));
         container.appendChild(t); return t;
       }
@@ -283,11 +359,11 @@
             if (t.name === "Reduced Motion")
               document.documentElement.setAttribute("data-au-motion", i ? "reduced" : "auto");
             setStatus(`<b>${t.name}</b> → ${t.vals[i]}`); };
+          el._enter = el._cycle;
           el.addEventListener("click", () => el._cycle());
           mainEl.appendChild(el); return el;
         });
         state.rows = rowEls.map((e) => [e]);
-        state.onEnter = (el) => el?._cycle?.();
       }
 
       const chunk = (arr, n) => { const o = []; for (let i = 0; i < arr.length; i += n) o.push(arr.slice(i, i + n)); return o; };
@@ -369,7 +445,7 @@
           if (state.zone === "tabs") { state.zone = "content"; state.focus = { r: 0, c: 0 }; applyFocus(); return; }
           const el = cellAt(state.focus);
           if (el && el.tagName === "AURORA-CARD") el.dispatchEvent(new KeyboardEvent("keydown", { key: "Enter" }));
-          else state.onEnter(el);
+          else if (el && el._enter) el._enter();
         }
       });
 

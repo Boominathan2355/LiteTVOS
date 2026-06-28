@@ -80,6 +80,18 @@ Accessibility · Accounts · Updates · About
 - Subtitle settings
 - Audio settings
 
+## Live TV
+
+Cable and antenna tuner support plus external inputs:
+
+- **Channel guide** — now/next EPG per channel, grouped by source (Cable / Antenna)
+- **Inputs** — Antenna (ATSC), Cable (QAM), HDMI 1–3 (eARC), AV
+- **Categories** — News, Sports, Movies, Kids, Music, Documentary, Lifestyle
+- **Quick tune** — select a channel to watch live; channels are searchable
+  through [universal search](#search)
+
+Backed by the tuner/input HAL — see [Hardware Support](17-Hardware-Support.md).
+
 ## Notification Center
 
 - Minimal cards

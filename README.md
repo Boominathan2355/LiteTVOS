@@ -44,16 +44,19 @@ renderer attach behind the launcher's `render` feature.
 a std-only HTTP backend when `PORT` is set — `PORT=8080 cargo run`). Deploy config
 in [render.yaml](render.yaml). This is a demo host, not the OS itself.
 
-The page is a full multi-section launcher (**Home · Apps · Search · Settings**)
-with focus navigation, a detail overlay, and a live clock — all data served by
-the Rust backend (`aurora-catalog` + `aurora-focus`):
+The page is a full multi-section launcher
+(**Home · Live TV · Apps · Search · Settings**) with focus navigation, a detail
+overlay, and a live clock — all data served by the Rust backend
+(`aurora-catalog` + `aurora-focus`):
 
 | Endpoint | Returns |
 |----------|---------|
 | `GET /` | The Aurora UI launcher (SPA) |
 | `GET /api/home` | Home rows with media items |
 | `GET /api/apps` | App library |
-| `GET /api/search?q=` | Universal search over media + apps |
+| `GET /api/channels` | Live TV channels (cable + antenna) with now/next |
+| `GET /api/inputs` | Tuner & HDMI inputs |
+| `GET /api/search?q=` | Universal search over media, apps + channels |
 | `GET /api/item?id=` | Media/app detail |
 | `GET /api/navigate?row=&col=&dir=` | Stateless focus move (engine demo) |
 | `GET /api/state` | Scripted navigation trace |

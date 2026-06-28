@@ -83,6 +83,8 @@ fn route(target: &str) -> (&'static str, &'static str, String) {
         ),
         "/api/home" => json(home_json()),
         "/api/apps" => json(apps_json()),
+        "/api/channels" => json(channels_json()),
+        "/api/inputs" => json(inputs_json()),
         "/api/search" => json(search_json(&param(query, "q").unwrap_or_default())),
         "/api/item" => item(&param(query, "id").unwrap_or_default()),
         "/api/navigate" => navigate(query),
@@ -140,12 +142,39 @@ fn apps_json() -> String {
     format!("{{\"apps\":[{}]}}", apps.join(","))
 }
 
+fn channel_json(c: &cat::Channel) -> String {
+    format!(
+        "{{\"type\":\"channel\",\"number\":\"{}\",\"name\":\"{}\",\"category\":\"{}\",\
+          \"accent\":\"{}\",\"now\":\"{}\",\"next\":\"{}\",\"source\":\"{}\"}}",
+        esc(c.number), esc(c.name), esc(c.category), esc(c.accent),
+        esc(c.now), esc(c.next), esc(c.source)
+    )
+}
+
+fn input_json(i: &cat::Input) -> String {
+    format!(
+        "{{\"id\":\"{}\",\"name\":\"{}\",\"kind\":\"{}\"}}",
+        esc(i.id), esc(i.name), esc(i.kind)
+    )
+}
+
+fn channels_json() -> String {
+    let ch: Vec<String> = cat::channels().iter().map(|c| channel_json(c)).collect();
+    format!("{{\"channels\":[{}]}}", ch.join(","))
+}
+
+fn inputs_json() -> String {
+    let inp: Vec<String> = cat::inputs().iter().map(|i| input_json(i)).collect();
+    format!("{{\"inputs\":[{}]}}", inp.join(","))
+}
+
 fn search_json(q: &str) -> String {
     let hits: Vec<String> = cat::search(q)
         .iter()
         .map(|h| match h {
             cat::Hit::Media(m) => media_json(m),
             cat::Hit::App(a) => app_json(a),
+            cat::Hit::Channel(c) => channel_json(c),
         })
         .collect();
     format!("{{\"query\":\"{}\",\"results\":[{}]}}", esc(q), hits.join(","))
@@ -156,6 +185,8 @@ fn item(id: &str) -> (&'static str, &'static str, String) {
         json(media_json(m))
     } else if let Some(a) = cat::find_app(id) {
         json(app_json(a))
+    } else if let Some(c) = cat::find_channel(id) {
+        json(channel_json(c))
     } else {
         (
             "404 Not Found",

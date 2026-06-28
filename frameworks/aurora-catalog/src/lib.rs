@@ -26,6 +26,29 @@ pub struct App {
     pub category: &'static str,
 }
 
+/// A live TV channel (cable / antenna tuner or an external input).
+#[derive(Clone, Copy, Debug)]
+pub struct Channel {
+    pub number: &'static str,
+    pub name: &'static str,
+    pub category: &'static str,
+    pub accent: &'static str,
+    /// Now-playing program (simple EPG: now / next).
+    pub now: &'static str,
+    pub next: &'static str,
+    /// Where the channel comes from: "Cable", "Antenna", or an input name.
+    pub source: &'static str,
+}
+
+/// A signal input / source.
+#[derive(Clone, Copy, Debug)]
+pub struct Input {
+    pub id: &'static str,
+    pub name: &'static str,
+    /// "Tuner", "HDMI", or "Composite".
+    pub kind: &'static str,
+}
+
 /// A titled row of media for the home screen.
 pub struct Row {
     pub title: &'static str,
@@ -36,6 +59,7 @@ pub struct Row {
 pub enum Hit {
     Media(&'static MediaItem),
     App(&'static App),
+    Channel(&'static Channel),
 }
 
 pub static MEDIA: &[MediaItem] = &[
@@ -67,6 +91,40 @@ pub static APPS: &[App] = &[
     App { id: "settings",  name: "Settings",  glyph: "⚙",  accent: "#9AA0A6", category: "System" },
     App { id: "live-tv",   name: "Live TV",   glyph: "📺", accent: "#5C6BC0", category: "Live" },
 ];
+
+/// Live TV channels — a mix of cable (QAM) and antenna (ATSC) sources.
+pub static CHANNELS: &[Channel] = &[
+    Channel { number: "2.1",  name: "Aurora News 24", category: "News",        accent: "#EA4335", now: "World Tonight",        next: "Market Watch", source: "Antenna" },
+    Channel { number: "4.1",  name: "Skyline Sports",  category: "Sports",      accent: "#34C759", now: "Live: City vs United", next: "Postgame",     source: "Cable" },
+    Channel { number: "5.1",  name: "Cinephile",       category: "Movies",      accent: "#5C6BC0", now: "Neon Drift",           next: "Starfall",     source: "Cable" },
+    Channel { number: "7.1",  name: "KidZone TV",      category: "Kids",        accent: "#8E7CFF", now: "Lantern Tales",        next: "Paper Boats",  source: "Antenna" },
+    Channel { number: "9.1",  name: "TuneBox Live",    category: "Music",       accent: "#F4B400", now: "Indie Hour",           next: "Top 40",       source: "Cable" },
+    Channel { number: "11.1", name: "Discovery+",      category: "Documentary", accent: "#3A7AFE", now: "Aurora Origins",       next: "Driftwood",    source: "Cable" },
+    Channel { number: "13.1", name: "Local 13",        category: "Lifestyle",   accent: "#34C759", now: "Cooking Coast",        next: "Home Fix",     source: "Antenna" },
+    Channel { number: "22.1", name: "Cine Action",     category: "Movies",      accent: "#EA4335", now: "The Long Road",        next: "Echoes",       source: "Cable" },
+];
+
+/// Signal inputs: tuners and external sources.
+pub static INPUTS: &[Input] = &[
+    Input { id: "antenna", name: "Antenna (ATSC)", kind: "Tuner" },
+    Input { id: "cable",   name: "Cable (QAM)",    kind: "Tuner" },
+    Input { id: "hdmi1",   name: "HDMI 1",         kind: "HDMI" },
+    Input { id: "hdmi2",   name: "HDMI 2",         kind: "HDMI" },
+    Input { id: "hdmi3",   name: "HDMI 3 (eARC)",  kind: "HDMI" },
+    Input { id: "av",      name: "AV",             kind: "Composite" },
+];
+
+pub fn channels() -> &'static [Channel] {
+    CHANNELS
+}
+
+pub fn find_channel(number: &str) -> Option<&'static Channel> {
+    CHANNELS.iter().find(|c| c.number == number)
+}
+
+pub fn inputs() -> &'static [Input] {
+    INPUTS
+}
 
 fn by_id(id: &str) -> Option<&'static MediaItem> {
     MEDIA.iter().find(|m| m.id == id)
@@ -109,6 +167,14 @@ pub fn search(query: &str) -> Vec<Hit> {
             hits.push(Hit::App(a));
         }
     }
+    for c in CHANNELS {
+        if c.name.to_lowercase().contains(&q)
+            || c.category.to_lowercase().contains(&q)
+            || c.now.to_lowercase().contains(&q)
+        {
+            hits.push(Hit::Channel(c));
+        }
+    }
     hits
 }
 
@@ -139,5 +205,25 @@ mod tests {
         assert_eq!(find_media("starfall").unwrap().genre, "Sci-Fi");
         assert!(find_media("nope").is_none());
         assert_eq!(find_app("settings").unwrap().name, "Settings");
+    }
+
+    #[test]
+    fn live_tv_channels_and_inputs() {
+        assert!(!channels().is_empty());
+        assert_eq!(find_channel("4.1").unwrap().category, "Sports");
+        assert!(find_channel("99.9").is_none());
+        // Both cable and antenna sources are present.
+        assert!(channels().iter().any(|c| c.source == "Cable"));
+        assert!(channels().iter().any(|c| c.source == "Antenna"));
+        // Tuner + HDMI inputs exist.
+        assert!(inputs().iter().any(|i| i.kind == "Tuner"));
+        assert!(inputs().iter().any(|i| i.kind == "HDMI"));
+    }
+
+    #[test]
+    fn search_includes_channels() {
+        assert!(search("sports").iter().any(|h| matches!(h, Hit::Channel(c) if c.number == "4.1")));
+        // matches a now-playing program too
+        assert!(search("aurora origins").iter().any(|h| matches!(h, Hit::Channel(_))));
     }
 }

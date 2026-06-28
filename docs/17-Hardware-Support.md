@@ -36,6 +36,26 @@ not by swapping runtimes, so the same OS spans every tier.
 Dolby/DTS passthrough and **Dolby Atmos / DTS:X over eARC** — see
 [Audio Management](15-Audio-Management.md).
 
+## Tuners & Inputs (Live TV)
+
+LiteTV OS supports broadcast and cable TV through the tuner HAL, plus external
+inputs:
+
+| Source | Support |
+|--------|---------|
+| Antenna (over-the-air) | **ATSC 1.0 / ATSC 3.0 (NextGen TV)**, DVB-T/T2, ISDB-T |
+| Cable | **QAM**, DVB-C; CableCARD where required |
+| Satellite | DVB-S/S2 (with compatible front-end) |
+| External | **HDMI 1–3** (one eARC), AV / composite |
+
+- **Channel guide / EPG** — now/next per channel, driven by
+  [`aurora-catalog`](../frameworks/aurora-catalog) (`GET /api/channels`).
+- **Input switching** — `GET /api/inputs`; HDMI-CEC for one-touch play and
+  power. The active source is shown in the [Live TV](03-UI-Design.md) UI.
+- Tuning and demux run on the SoC's hardware front-end/decoder, so live TV
+  follows the same offload model as streamed media (see
+  [Power](07-Power-Optimization.md)).
+
 ## Connectivity
 
 - **HDMI 2.1** (eARC, CEC, VRR/ALLM).
