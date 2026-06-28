@@ -1,0 +1,26 @@
+# LiteTV OS — native Aurora UI workspace.
+#
+# Pure-Rust, std-only foundation today (compiles + tests offline). The Wayland
+# compositor (Smithay) and Skia renderer plug into the `launcher` crate behind
+# the `render` feature once their toolchains/deps are available — see
+# launcher/src/compositor.rs.
+[workspace]
+resolver = "2"
+members = [
+    "frameworks/aurora-tokens",
+    "frameworks/aurora-focus",
+    "launcher",
+]
+
+[workspace.package]
+version = "0.1.0"
+edition = "2021"
+license = "Apache-2.0"
+repository = "LiteTV OS"
+
+[profile.release]
+opt-level = "z"     # optimize for size — respects the <2.5 GB image / 512 MB targets
+lto = true
+codegen-units = 1
+panic = "abort"
+strip = true

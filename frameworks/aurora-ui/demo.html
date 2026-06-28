@@ -1,0 +1,102 @@
+<!doctype html>
+<html lang="en" data-au-motion="auto">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Aurora UI · aurora-card demo</title>
+    <link rel="stylesheet" href="tokens.css" />
+    <style>
+      body {
+        margin: 0;
+        min-height: 100vh;
+        background: var(--au-bg);
+        color: var(--au-text);
+        font-family: var(--au-font);
+        padding: var(--au-space-6) clamp(16px, 5vw, 64px);
+        box-sizing: border-box;
+      }
+      h1 { font: var(--au-display); margin: 0 0 4px; }
+      .hint { color: var(--au-text-2); font: var(--au-body); margin: 0 0 32px; }
+      kbd {
+        background: var(--au-surface-2); border-radius: 6px;
+        padding: 2px 7px; font: var(--au-caption); border: 1px solid #333;
+      }
+      h2 { font: var(--au-heading); margin: 32px 0 16px; }
+      /* Horizontal focus row — the canonical TV layout */
+      .row {
+        display: flex; gap: var(--au-space-5);
+        overflow-x: auto; padding: 24px 8px; scroll-padding-inline: 24px;
+        scroll-snap-type: x proximity;
+      }
+      .row::-webkit-scrollbar { height: 0; }
+      aurora-card { scroll-snap-align: center; }
+      #log {
+        margin-top: 24px; color: var(--au-text-2); font: var(--au-caption);
+        min-height: 1.4em;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>Aurora UI</h1>
+    <p class="hint">
+      <code>&lt;aurora-card&gt;</code> — use <kbd>←</kbd> <kbd>→</kbd> to move
+      focus, <kbd>Enter</kbd> to select. Focus scales, glows, elevates, and
+      reveals quick actions.
+    </p>
+
+    <h2>Continue Watching</h2>
+    <div class="row" id="row"></div>
+
+    <div id="log">Ready.</div>
+
+    <script type="module">
+      import "./components/aurora-card.js";
+
+      const items = [
+        { title: "Aurora Origins", subtitle: "1h 52m · Documentary", progress: 0.42, accent: "#3A7AFE" },
+        { title: "Neon Drift", subtitle: "2h 08m · Action", progress: 0.71, accent: "#EA4335" },
+        { title: "Quiet Tides", subtitle: "1h 36m · Drama", progress: 0.15, accent: "#34C759" },
+        { title: "Starfall", subtitle: "2h 44m · Sci-Fi", progress: 0.9, accent: "#5C6BC0" },
+        { title: "Golden Hour", subtitle: "1h 21m · Romance", progress: 0.33, accent: "#F4B400" },
+        { title: "The Long Road", subtitle: "2h 02m · Adventure", progress: 0.05, accent: "#3A7AFE" },
+      ];
+
+      const row = document.getElementById("row");
+      const log = document.getElementById("log");
+
+      for (const it of items) {
+        const card = document.createElement("aurora-card");
+        card.setAttribute("title", it.title);
+        card.setAttribute("subtitle", it.subtitle);
+        card.setAttribute("progress", it.progress);
+        card.setAttribute("accent", it.accent);
+        card.innerHTML = `
+          <button slot="actions" data-action="play"  aria-label="Play">▶</button>
+          <button slot="actions" data-action="info"  aria-label="More info">ⓘ</button>
+        `;
+        row.appendChild(card);
+      }
+
+      // Horizontal focus navigation (remote D-pad / arrow keys).
+      const cards = [...row.querySelectorAll("aurora-card")];
+      row.addEventListener("keydown", (e) => {
+        const i = cards.indexOf(e.target);
+        if (i < 0) return;
+        if (e.key === "ArrowRight" && i < cards.length - 1) {
+          e.preventDefault();
+          cards[i + 1].focus();
+        } else if (e.key === "ArrowLeft" && i > 0) {
+          e.preventDefault();
+          cards[i - 1].focus();
+        }
+      });
+      cards[0]?.setAttribute("tabindex", "0");
+      requestAnimationFrame(() => cards[0]?.focus());
+
+      row.addEventListener("au-select", (e) =>
+        (log.textContent = `▶ Selected: ${e.detail.title}`));
+      row.addEventListener("au-action", (e) =>
+        (log.textContent = `Action "${e.detail.action}" on focused card`));
+    </script>
+  </body>
+</html>

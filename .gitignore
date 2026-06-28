@@ -1,0 +1,14 @@
+# Rust
+/target/
+**/*.rs.bk
+Cargo.lock
+
+# Yocto (built outside the repo by scripts, but ignore if nested)
+/build/tmp/
+/build/sstate-cache/
+/build/downloads/
+**/build/conf/local.conf
+
+# Editor / OS
+*.swp
+.DS_Store
