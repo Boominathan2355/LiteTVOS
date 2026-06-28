@@ -5,7 +5,8 @@
 //! Service that must bind `$PORT` and stay running (e.g. Render).
 //!
 //! Static:  GET /  ·  /tokens.css  ·  /components/aurora-card.js  ·  /icons.js
-//! API:     GET /api/home  /api/apps  /api/channels  /api/inputs  /api/recordings
+//! API:     GET /api/home  /api/featured  /api/glance  /api/apps
+//!          GET /api/channels  /api/inputs  /api/recordings
 //!          GET /api/search?q=  /api/item?id=
 //!          GET /api/navigate?row=&col=&dir=   /api/specs  /api/state  /healthz
 
@@ -89,6 +90,8 @@ fn route(target: &str) -> (&'static str, &'static str, String) {
             ICONS_JS.to_string(),
         ),
         "/api/home" => json(home_json()),
+        "/api/featured" => json(featured_json()),
+        "/api/glance" => json(glance_json()),
         "/api/apps" => json(apps_json()),
         "/api/channels" => json(channels_json()),
         "/api/inputs" => json(inputs_json()),
@@ -116,9 +119,35 @@ fn json(body: String) -> (&'static str, &'static str, String) {
 fn media_json(m: &cat::MediaItem) -> String {
     format!(
         "{{\"type\":\"media\",\"id\":\"{}\",\"title\":\"{}\",\"subtitle\":\"{}\",\
-          \"genre\":\"{}\",\"accent\":\"{}\",\"progress\":{}}}",
-        esc(m.id), esc(m.title), esc(m.subtitle), esc(m.genre), esc(m.accent), m.progress
+          \"genre\":\"{}\",\"accent\":\"{}\",\"rating\":\"{}\",\"progress\":{}}}",
+        esc(m.id), esc(m.title), esc(m.subtitle), esc(m.genre), esc(m.accent), esc(m.rating), m.progress
     )
+}
+
+fn featured_json() -> String {
+    let slides: Vec<String> = cat::featured()
+        .iter()
+        .filter_map(|f| {
+            let m = cat::find_media(f.id)?;
+            Some(format!(
+                "{{\"headline\":\"{}\",\"blurb\":\"{}\",\"accent\":\"{}\",\"media\":{}}}",
+                esc(f.headline), esc(f.blurb), esc(f.accent), media_json(m)
+            ))
+        })
+        .collect();
+    format!("{{\"slides\":[{}]}}", slides.join(","))
+}
+
+/// Demo "glance" widgets (storage / system / weather / reminder / profile).
+/// Static sample values — a real device would source these from the platform.
+fn glance_json() -> String {
+    "{\"profile\":{\"name\":\"Boomi\",\"tier\":\"Premium\"},\
+      \"storage\":{\"used_pct\":52,\"used_gb\":\"32\",\"total_gb\":\"64\"},\
+      \"system\":{\"cpu_c\":45,\"ram_pct\":36},\
+      \"weather\":{\"place\":\"Coimbatore, IN\",\"temp_c\":29,\"cond\":\"Clear\",\"hi_c\":33,\"lo_c\":24},\
+      \"reminder\":{\"title\":\"Team Standup\",\"when\":\"Tomorrow · 10:00 AM\"},\
+      \"tips\":\"Press and hold OK for more options.\"}"
+        .to_string()
 }
 
 fn app_json(a: &cat::App) -> String {

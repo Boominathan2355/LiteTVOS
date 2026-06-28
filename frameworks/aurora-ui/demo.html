@@ -10,195 +10,213 @@
       * { box-sizing: border-box; }
       body {
         margin: 0; color: var(--au-text); font-family: var(--au-font); overflow: hidden;
-        display: grid; grid-template-columns: clamp(200px, 18vw, 252px) 1fr;
+        display: grid; grid-template-columns: clamp(210px, 17vw, 260px) 1fr;
         background:
-          radial-gradient(1200px 620px at 78% -12%,
-            color-mix(in srgb, var(--au-primary) 22%, transparent), transparent 60%),
-          radial-gradient(900px 600px at 0% 110%,
-            color-mix(in srgb, var(--au-secondary) 16%, transparent), transparent 55%),
+          radial-gradient(1300px 700px at 80% -15%, color-mix(in srgb, var(--au-primary) 24%, transparent), transparent 60%),
+          radial-gradient(1000px 700px at -5% 115%, color-mix(in srgb, var(--au-secondary) 18%, transparent), transparent 55%),
           var(--au-bg);
         transition: color var(--au-dur-4) var(--au-ease-out);
       }
       @keyframes au-enter { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: none; } }
       @keyframes au-pop   { from { opacity: 0; transform: scale(.96) translateY(8px); } to { opacity: 1; transform: none; } }
       @keyframes au-rise  { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: none; } }
+      @keyframes au-fade  { from { opacity: 0; } to { opacity: 1; } }
       .icn { display: inline-block; vertical-align: -0.18em; flex: none; }
+      .panel {
+        background: color-mix(in srgb, var(--au-surface) 80%, transparent);
+        border: 1px solid var(--au-border); border-radius: var(--au-radius-lg);
+        padding: 16px 18px; backdrop-filter: blur(10px);
+      }
 
       /* ---------- Sidebar ---------- */
       .sidebar {
-        display: flex; flex-direction: column; gap: 6px;
-        padding: 26px 16px; min-height: 0;
+        display: flex; flex-direction: column; gap: 6px; padding: 22px 14px; min-height: 0; overflow-y: auto;
         border-right: 1px solid var(--au-border);
-        background: color-mix(in srgb, var(--au-surface) 55%, transparent);
-        backdrop-filter: blur(8px);
+        background: color-mix(in srgb, var(--au-surface) 50%, transparent); backdrop-filter: blur(8px);
       }
-      .brand { display: flex; align-items: center; gap: 12px; padding: 4px 10px 22px; }
-      .brand .logo {
-        width: 34px; height: 34px; border-radius: 10px; display: grid; place-items: center;
-        background: linear-gradient(135deg, var(--au-primary), var(--au-secondary)); color: #fff;
-      }
+      .sidebar::-webkit-scrollbar { width: 0; }
+      .brand { display: flex; align-items: center; gap: 12px; padding: 4px 10px 18px; }
+      .brand .logo { width: 34px; height: 34px; border-radius: 10px; display: grid; place-items: center;
+        background: linear-gradient(135deg, var(--au-primary), var(--au-secondary)); color: #fff; }
       .brand .name { font: var(--au-heading); font-size: 19px; }
-      .brand .name b { font-weight: 700; }
       .brand .name span { color: var(--au-text-2); font-weight: 500; }
       .navitem {
-        display: flex; align-items: center; gap: 14px; padding: 12px 14px;
-        border-radius: var(--au-radius-md); color: var(--au-text-2); cursor: pointer; outline: none;
-        font: var(--au-body); font-size: 16px; border: 1px solid transparent;
-        transition: background var(--au-dur-2) var(--au-ease-out), color var(--au-dur-2) var(--au-ease-out),
-                    transform var(--au-dur-2) var(--au-ease-out);
+        display: flex; align-items: center; gap: 14px; padding: 11px 14px; border-radius: var(--au-radius-md);
+        color: var(--au-text-2); cursor: pointer; outline: none; font: var(--au-body); font-size: 16px;
+        border: 1px solid transparent;
+        transition: background var(--au-dur-2) var(--au-ease-out), color var(--au-dur-2) var(--au-ease-out), transform var(--au-dur-2) var(--au-ease-out);
       }
       .navitem .icn { color: inherit; }
       .navitem[aria-current="true"] {
-        background: linear-gradient(135deg,
-          color-mix(in srgb, var(--au-primary) 92%, transparent),
-          color-mix(in srgb, var(--au-secondary) 78%, transparent));
+        background: linear-gradient(135deg, color-mix(in srgb, var(--au-primary) 92%, transparent), color-mix(in srgb, var(--au-secondary) 78%, transparent));
         color: #fff;
       }
-      .navitem:focus {
-        color: var(--au-text); border-color: color-mix(in srgb, var(--au-primary) 70%, transparent);
-        background: var(--au-surface-2); transform: translateX(2px);
-      }
+      .navitem:focus { color: var(--au-text); border-color: color-mix(in srgb, var(--au-primary) 70%, transparent); background: var(--au-surface-2); transform: translateX(2px); }
       .navitem[aria-current="true"]:focus { box-shadow: var(--au-focus-glow); border-color: transparent; }
-      .sidebar .grow { flex: 1; }
-      .sidebar .hint { color: var(--au-text-2); font: var(--au-caption); padding: 8px 14px; opacity: .7; }
+      .sidebar .grow { flex: 1; min-height: 10px; }
+      #sideextras { display: flex; flex-direction: column; gap: 10px; margin-top: 10px; }
+      .profilecard { display: flex; align-items: center; gap: 12px; }
+      .profilecard .av { width: 40px; height: 40px; border-radius: 50%; display: grid; place-items: center; color: #fff;
+        background: linear-gradient(135deg, var(--au-secondary), var(--au-primary)); border: 2px solid color-mix(in srgb, var(--au-primary) 55%, transparent); }
+      .profilecard .pn { font-weight: 700; font-size: 15px; }
+      .profilecard .pt { font: var(--au-caption); color: var(--au-secondary); display: flex; align-items: center; gap: 4px; }
+      .sidecard .h { font: var(--au-caption); color: var(--au-text-2); margin-bottom: 10px; }
+      .storage { display: flex; align-items: center; gap: 14px; }
+      .ring { --pct: 0; width: 52px; height: 52px; border-radius: 50%; flex: none;
+        background: conic-gradient(var(--au-primary) calc(var(--pct) * 1%), var(--au-surface-2) 0);
+        -webkit-mask: radial-gradient(closest-side, transparent 62%, #000 63%);
+                mask: radial-gradient(closest-side, transparent 62%, #000 63%); }
+      .storage .v { font-weight: 700; font-size: 17px; }
+      .storage .s { font: var(--au-caption); color: var(--au-text-2); }
+      .sys { display: flex; gap: 16px; }
+      .sys .col { flex: 1; }
+      .sys .top { display: flex; justify-content: space-between; font: var(--au-caption); }
+      .sys .top b { font-size: 15px; }
+      .sys .meter { height: 5px; border-radius: 3px; background: var(--au-surface-2); margin-top: 6px; overflow: hidden; }
+      .sys .meter > i { display: block; height: 100%; }
 
-      /* ---------- Stage (top bar + content) ---------- */
+      /* ---------- Stage ---------- */
       .stage { display: flex; flex-direction: column; min-width: 0; min-height: 0; }
-      .topbar { display: flex; align-items: center; gap: 18px; padding: 20px clamp(20px, 3vw, 40px) 12px; }
-      .searchbar {
-        flex: 1; max-width: 560px; display: flex; align-items: center; gap: 12px;
-        background: var(--au-surface); border: 1px solid var(--au-border-2);
-        border-radius: 999px; padding: 12px 20px; color: var(--au-text); outline: none;
-        transition: border-color var(--au-dur-2) var(--au-ease-out), box-shadow var(--au-dur-2) var(--au-ease-out);
-      }
+      .topbar { display: flex; align-items: center; gap: 16px; padding: 18px clamp(18px, 2.4vw, 34px) 10px; }
+      .searchbar { flex: 1; max-width: 540px; display: flex; align-items: center; gap: 12px;
+        background: var(--au-surface); border: 1px solid var(--au-border-2); border-radius: 999px; padding: 11px 20px; color: var(--au-text); outline: none;
+        transition: border-color var(--au-dur-2), box-shadow var(--au-dur-2); }
       .searchbar .icn { color: var(--au-text-2); }
-      .searchbar input {
-        flex: 1; background: none; border: 0; outline: none; color: var(--au-text);
-        font: var(--au-body); font-size: 16px; min-width: 0;
-      }
+      .searchbar input { flex: 1; background: none; border: 0; outline: none; color: var(--au-text); font: var(--au-body); font-size: 16px; min-width: 0; }
       .searchbar input::placeholder { color: var(--au-text-2); }
-      .searchbar:focus-within, .searchbar:focus {
-        border-color: var(--au-primary);
-        box-shadow: 0 0 0 3px color-mix(in srgb, var(--au-primary) 38%, transparent);
-      }
+      .searchbar:focus-within { border-color: var(--au-primary); box-shadow: 0 0 0 3px color-mix(in srgb, var(--au-primary) 38%, transparent); }
       .topspacer { flex: 1; }
       .statusbtns { display: flex; align-items: center; gap: 6px; }
-      .iconbtn {
-        width: 42px; height: 42px; border-radius: 50%; display: grid; place-items: center;
-        color: var(--au-text-2); cursor: pointer; outline: none; border: 1px solid transparent;
-        transition: background var(--au-dur-2) var(--au-ease-out), color var(--au-dur-2) var(--au-ease-out);
-      }
+      .iconbtn { width: 42px; height: 42px; border-radius: 50%; display: grid; place-items: center; color: var(--au-text-2);
+        cursor: pointer; outline: none; border: 1px solid transparent; transition: background var(--au-dur-2), color var(--au-dur-2); }
       .iconbtn:hover, .iconbtn:focus { background: var(--au-surface-2); color: var(--au-text); }
-      .avatar {
-        width: 42px; height: 42px; border-radius: 50%; display: grid; place-items: center; color: #fff;
-        background: linear-gradient(135deg, var(--au-secondary), var(--au-primary));
-        border: 2px solid color-mix(in srgb, var(--au-primary) 60%, transparent);
-      }
-      .clock { text-align: right; line-height: 1.2; margin-left: 8px; }
+      .avatar { width: 42px; height: 42px; border-radius: 50%; display: grid; place-items: center; color: #fff;
+        background: linear-gradient(135deg, var(--au-secondary), var(--au-primary)); border: 2px solid color-mix(in srgb, var(--au-primary) 60%, transparent); cursor: pointer; }
+      .clock { text-align: right; line-height: 1.2; margin-left: 6px; }
       .clock .t { font-weight: 700; font-size: 18px; }
       .clock .d { color: var(--au-text-2); font: var(--au-caption); }
 
-      main { flex: 1; overflow-y: auto; padding: 4px clamp(20px, 3vw, 40px) 28px; scroll-behavior: smooth; }
+      main { flex: 1; overflow-y: auto; padding: 4px clamp(18px, 2.4vw, 34px) 22px; scroll-behavior: smooth; }
       main::-webkit-scrollbar { width: 0; }
       main.enter { animation: au-enter var(--au-dur-4) var(--au-ease-out); }
-      main.enter h2, main.enter .row, main.enter .heroes, main.enter .applist,
-      main.enter .chiprow, main.enter .grid, main.enter .guide, main.enter .setrow,
-      main.enter .chips, main.enter .cats { animation: au-rise var(--au-dur-4) var(--au-ease-out) both; }
-      main.enter > :nth-child(2) { animation-delay: 50ms; }
-      main.enter > :nth-child(3) { animation-delay: 100ms; }
-      main.enter > :nth-child(4) { animation-delay: 150ms; }
-      main.enter > :nth-child(n+5) { animation-delay: 190ms; }
-      :root[data-au-motion="reduced"] main.enter,
-      :root[data-au-motion="reduced"] main.enter *,
-      :root[data-au-motion="reduced"] .sheet { animation: none !important; }
+      h2 { font: var(--au-heading); font-size: 19px; margin: 20px 0 12px; display: flex; align-items: center; gap: 8px; }
+      h2 .icn { color: var(--au-text-2); }
 
-      h2 { font: var(--au-heading); font-size: 20px; margin: 22px 0 12px; }
+      /* ---------- Home grid (content + rail) ---------- */
+      .homewrap { display: grid; grid-template-columns: minmax(0, 1fr) clamp(280px, 23vw, 340px); gap: 22px; }
+      @media (max-width: 1100px) { .homewrap { grid-template-columns: 1fr; } .rail { display: none; } }
+      .homemain { min-width: 0; }
+      .rail { display: flex; flex-direction: column; gap: 16px; }
 
-      /* ---------- Continue Watching: landscape heroes ---------- */
-      .heroes { display: grid; grid-template-columns: repeat(4, 1fr); gap: 18px; }
-      .hero {
-        position: relative; aspect-ratio: 16 / 10; border-radius: var(--au-radius-lg);
-        overflow: hidden; cursor: pointer; outline: none; border: 1px solid var(--au-border);
-        background:
-          linear-gradient(180deg, transparent 40%, rgba(0,0,0,.78)),
-          linear-gradient(135deg, color-mix(in srgb, var(--ac, var(--au-primary)) 70%, #000), color-mix(in srgb, var(--ac, var(--au-primary)) 20%, #05070b));
-        transition: transform var(--au-dur-3) var(--au-ease-spring), box-shadow var(--au-dur-3) var(--au-ease-out);
-      }
-      .hero:focus {
-        transform: scale(1.04);
-        box-shadow: 0 0 0 3px color-mix(in srgb, var(--au-primary) 75%, transparent), 0 16px 40px rgba(0,0,0,.6);
-      }
-      .hero .body { position: absolute; left: 16px; right: 16px; bottom: 14px; }
-      .hero .ttl { font-size: 18px; font-weight: 700; margin: 0 0 4px; text-shadow: 0 2px 8px rgba(0,0,0,.6); }
-      .hero .sub { font: var(--au-caption); color: #d7dbe2; }
-      .hero .bar { height: 4px; border-radius: 3px; background: rgba(255,255,255,.25); margin-top: 10px; overflow: hidden; }
-      .hero .bar > i { display: block; height: 100%; background: var(--au-primary); }
+      /* hero */
+      .hero { position: relative; min-height: 300px; border-radius: var(--au-radius-xl); overflow: hidden;
+        border: 1px solid var(--au-border); display: flex; align-items: center;
+        background: linear-gradient(115deg, color-mix(in srgb, var(--hac, var(--au-primary)) 60%, #05070b) 30%, color-mix(in srgb, var(--hac, var(--au-primary)) 22%, #05070b)); }
+      .hero::after { content: ""; position: absolute; right: -60px; top: -40px; width: 60%; height: 160%;
+        background: radial-gradient(circle at 60% 40%, color-mix(in srgb, var(--hac, var(--au-primary)) 75%, transparent), transparent 60%);
+        filter: blur(10px); opacity: .9; }
+      .hero .copy { position: relative; z-index: 1; padding: 40px clamp(28px, 3vw, 48px); max-width: 60%; }
+      .hero h1 { font: var(--au-display); font-size: clamp(28px, 3.2vw, 44px); line-height: 1.08; margin: 0 0 12px; }
+      .hero h1 .ac { color: color-mix(in srgb, var(--hac, var(--au-primary)) 55%, #fff); }
+      .hero .blurb { color: #dfe3ea; font-size: 16px; margin: 0 0 22px; }
+      .hero .acts { display: flex; align-items: center; gap: 14px; }
+      .hbtn { display: inline-flex; align-items: center; gap: 9px; padding: 13px 24px; border-radius: 999px; border: 0;
+        font: var(--au-body); font-size: 16px; cursor: pointer; outline: none; color: #fff;
+        background: linear-gradient(135deg, var(--au-primary), var(--au-secondary)); transition: transform var(--au-dur-2), box-shadow var(--au-dur-2); }
+      .hbtn.ghost { background: color-mix(in srgb, #fff 12%, transparent); border: 1px solid color-mix(in srgb, #fff 22%, transparent); }
+      .hbtn:focus { transform: translateY(-1px); box-shadow: 0 0 0 3px color-mix(in srgb, var(--au-primary) 65%, transparent); }
+      .dots { display: flex; gap: 8px; margin-top: 22px; }
+      .dots .d { width: 9px; height: 9px; border-radius: 50%; background: color-mix(in srgb, #fff 28%, transparent); cursor: pointer; transition: width var(--au-dur-2), background var(--au-dur-2); }
+      .dots .d.on { width: 24px; border-radius: 5px; background: var(--au-primary); }
 
-      /* ---------- App row (logo tiles) ---------- */
+      /* top picks (rating posters) */
+      .picks { display: flex; gap: 16px; overflow-x: auto; padding: 8px 2px 14px; }
+      .picks::-webkit-scrollbar { height: 0; }
+      .poster { position: relative; flex: none; width: 150px; aspect-ratio: 2 / 3; border-radius: var(--au-radius-md); overflow: hidden;
+        cursor: pointer; outline: none; border: 1px solid var(--au-border);
+        background: linear-gradient(160deg, color-mix(in srgb, var(--ac, var(--au-primary)) 72%, #04060a), color-mix(in srgb, var(--ac, var(--au-primary)) 18%, #04060a));
+        transition: transform var(--au-dur-3) var(--au-ease-spring), box-shadow var(--au-dur-3) var(--au-ease-out); }
+      .poster:focus { transform: scale(1.06); box-shadow: 0 0 0 3px color-mix(in srgb, var(--au-primary) 75%, transparent), 0 14px 34px rgba(0,0,0,.6); }
+      .poster .grad { position: absolute; inset: 0; background: linear-gradient(180deg, transparent 45%, rgba(0,0,0,.82)); }
+      .poster .rate { position: absolute; top: 8px; left: 8px; display: inline-flex; align-items: center; gap: 4px;
+        background: rgba(0,0,0,.55); color: #ffd34d; font: var(--au-caption); font-size: 12px; font-weight: 700; padding: 3px 7px; border-radius: 999px; backdrop-filter: blur(4px); }
+      .poster .rate .icn { color: #ffd34d; }
+      .poster .pt { position: absolute; left: 10px; right: 10px; bottom: 10px; font-size: 13px; font-weight: 700; text-shadow: 0 2px 6px rgba(0,0,0,.7); }
+
+      /* app row + chips (shared) */
       .applist { display: grid; grid-template-columns: repeat(8, 1fr); gap: 14px; }
-      .applist.compact { grid-template-columns: repeat(auto-fill, minmax(120px, 1fr)); }
-      .applogo {
-        height: 84px; border-radius: var(--au-radius-md); display: flex; flex-direction: column;
-        align-items: center; justify-content: center; gap: 8px; cursor: pointer; outline: none;
-        color: #fff; border: 1px solid transparent; position: relative;
-        transition: transform var(--au-dur-3) var(--au-ease-spring), box-shadow var(--au-dur-3) var(--au-ease-out);
-      }
+      .applogo { height: 80px; border-radius: var(--au-radius-md); display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 7px;
+        cursor: pointer; outline: none; color: #fff; border: 1px solid transparent;
+        transition: transform var(--au-dur-3) var(--au-ease-spring), box-shadow var(--au-dur-3) var(--au-ease-out); }
       .applogo .nm { font: var(--au-caption); font-size: 13px; }
-      .applogo:focus {
-        transform: scale(1.06);
-        box-shadow: 0 0 0 3px color-mix(in srgb, var(--au-primary) 75%, transparent), 0 12px 30px rgba(0,0,0,.5);
-      }
+      .applogo:focus { transform: scale(1.06); box-shadow: 0 0 0 3px color-mix(in srgb, var(--au-primary) 75%, transparent), 0 12px 30px rgba(0,0,0,.5); }
       .applogo.all { background: var(--au-surface-2); color: var(--au-text); border: 1px solid var(--au-border); }
-
-      /* ---------- Recently Used / category chips ---------- */
-      .chiprow, .cats { display: flex; gap: 12px; flex-wrap: wrap; }
-      .chip2 {
-        display: flex; align-items: center; gap: 10px; padding: 12px 18px;
-        background: var(--au-surface); border: 1px solid var(--au-border); border-radius: 999px;
-        color: var(--au-text); cursor: pointer; outline: none; font: var(--au-caption); font-size: 14px;
-        transition: background var(--au-dur-2) var(--au-ease-out), box-shadow var(--au-dur-2) var(--au-ease-out),
-                    transform var(--au-dur-2) var(--au-ease-out);
-      }
+      .chiprow { display: flex; gap: 12px; flex-wrap: wrap; }
+      .chip2 { display: flex; align-items: center; gap: 10px; padding: 12px 18px; background: var(--au-surface); border: 1px solid var(--au-border);
+        border-radius: 999px; color: var(--au-text); cursor: pointer; outline: none; font: var(--au-caption); font-size: 14px;
+        transition: background var(--au-dur-2), box-shadow var(--au-dur-2), transform var(--au-dur-2); }
       .chip2 .icn { color: var(--au-text-2); }
-      .chip2:focus {
-        background: var(--au-surface-2); transform: translateY(-2px);
-        box-shadow: 0 0 0 3px color-mix(in srgb, var(--au-primary) 55%, transparent);
-      }
+      .chip2:focus { background: var(--au-surface-2); transform: translateY(-2px); box-shadow: 0 0 0 3px color-mix(in srgb, var(--au-primary) 55%, transparent); }
+      .cats { display: flex; gap: 12px; flex-wrap: wrap; }
       .cat { padding: 8px 16px; font-size: 14px; }
       .cat[aria-pressed="true"] { background: var(--au-primary); color: #fff; border-color: transparent; }
 
-      /* ---------- App grid (Apps section) ---------- */
+      /* voice bar */
+      .voicebar { display: flex; align-items: center; gap: 12px; margin: 22px 0 4px; padding: 14px 20px; border-radius: 999px;
+        background: color-mix(in srgb, var(--au-surface) 80%, transparent); border: 1px solid var(--au-border); cursor: pointer; outline: none; backdrop-filter: blur(10px); }
+      .voicebar .icn { color: var(--au-primary); }
+      .voicebar .vt { color: var(--au-text-2); font: var(--au-body); font-size: 15px; }
+      .voicebar:focus { border-color: var(--au-primary); box-shadow: 0 0 0 3px color-mix(in srgb, var(--au-primary) 40%, transparent); }
+
+      /* rail widgets */
+      .rail .ph { font: var(--au-caption); color: var(--au-text-2); margin-bottom: 12px; display: flex; align-items: center; gap: 8px; }
+      .rail .ph .icn { color: var(--au-text-2); }
+      .cw { display: block; border-radius: var(--au-radius-md); overflow: hidden; cursor: pointer; outline: none; border: 1px solid var(--au-border);
+        background: linear-gradient(160deg, color-mix(in srgb, var(--ac, var(--au-primary)) 65%, #05070b), color-mix(in srgb, var(--ac, var(--au-primary)) 20%, #05070b)); }
+      .cw .art { aspect-ratio: 16 / 8; position: relative; }
+      .cw .art::after { content: ""; position: absolute; inset: 0; background: linear-gradient(180deg, transparent 40%, rgba(0,0,0,.7)); }
+      .cw .b { padding: 12px 14px; }
+      .cw .t { font-weight: 700; }
+      .cw .s { font: var(--au-caption); color: var(--au-text-2); margin-top: 2px; }
+      .cw .bar { height: 4px; border-radius: 3px; background: var(--au-surface-2); margin-top: 10px; overflow: hidden; }
+      .cw .bar > i { display: block; height: 100%; background: var(--au-primary); }
+      .cw .left { font: var(--au-caption); color: var(--au-text-2); margin-top: 6px; }
+      .cw:focus { box-shadow: 0 0 0 3px color-mix(in srgb, var(--au-primary) 60%, transparent); }
+      .qs { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+      .qtile { display: flex; align-items: center; gap: 10px; padding: 12px 14px; border-radius: var(--au-radius-md);
+        background: var(--au-surface-2); border: 1px solid var(--au-border); color: var(--au-text); cursor: pointer; outline: none; font: var(--au-caption); font-size: 13px;
+        transition: background var(--au-dur-2), box-shadow var(--au-dur-2); }
+      .qtile .icn { color: var(--au-text-2); }
+      .qtile.on { background: linear-gradient(135deg, var(--au-primary), var(--au-secondary)); color: #fff; border-color: transparent; }
+      .qtile.on .icn { color: #fff; }
+      .qtile:focus { box-shadow: 0 0 0 3px color-mix(in srgb, var(--au-primary) 60%, transparent); }
+      .weather { display: flex; align-items: center; gap: 14px; }
+      .weather .ic { color: var(--au-warning); }
+      .weather .tw { font-size: 30px; font-weight: 700; }
+      .weather .cw2 { color: var(--au-text-2); font: var(--au-caption); }
+      .weather .pl { font: var(--au-caption); color: var(--au-text-2); }
+      .rem .t, .tips .t { font-weight: 700; display: flex; align-items: center; gap: 8px; }
+      .rem .s { color: var(--au-text-2); font: var(--au-caption); margin-top: 6px; padding-left: 2px; }
+      .tips .s { color: var(--au-text-2); font: var(--au-caption); margin-top: 6px; }
+
+      /* ---------- Apps / Media / Live TV (full-width sections) ---------- */
       .grid { display: grid; grid-template-columns: repeat(6, 1fr); gap: 16px; padding: 4px 0; }
-      .tile {
-        background: var(--au-surface); border-radius: var(--au-radius-md); aspect-ratio: 1 / 1;
-        display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 10px;
-        cursor: pointer; outline: none; border: 1px solid var(--au-border);
-        transition: transform var(--au-dur-3) var(--au-ease-spring), box-shadow var(--au-dur-3) var(--au-ease-out), background var(--au-dur-3) var(--au-ease-out);
-      }
+      .tile { background: var(--au-surface); border-radius: var(--au-radius-md); aspect-ratio: 1 / 1; display: flex; flex-direction: column;
+        align-items: center; justify-content: center; gap: 10px; cursor: pointer; outline: none; border: 1px solid var(--au-border);
+        transition: transform var(--au-dur-3) var(--au-ease-spring), box-shadow var(--au-dur-3) var(--au-ease-out), background var(--au-dur-3); }
       .tile .glyph { width: 54px; height: 54px; border-radius: 15px; display: grid; place-items: center; color: #fff; }
       .tile.input .glyph { color: var(--au-text); }
       .tile .name { font: var(--au-caption); font-size: 14px; }
-      .tile:focus {
-        transform: scale(1.06); background: var(--au-surface-2);
-        box-shadow: 0 0 0 3px color-mix(in srgb, var(--au-primary) 70%, transparent), 0 12px 32px rgba(0,0,0,.55);
-      }
+      .tile:focus { transform: scale(1.06); background: var(--au-surface-2); box-shadow: 0 0 0 3px color-mix(in srgb, var(--au-primary) 70%, transparent), 0 12px 32px rgba(0,0,0,.55); }
       .tile.input { aspect-ratio: auto; padding: 16px 12px; }
-
-      /* media rows (portrait cards) */
       .row { display: flex; gap: 16px; overflow-x: auto; padding: 8px 2px 14px; }
       .row::-webkit-scrollbar { height: 0; }
       aurora-card { --au-card-w: 160px; }
-
-      /* ---------- Live TV ---------- */
       .guide { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; padding: 4px 0; }
-      .chcard {
-        background: var(--au-surface); border: 1px solid var(--au-border);
-        border-left: 4px solid var(--ac, var(--au-primary)); border-radius: var(--au-radius-md);
-        padding: 14px 16px; outline: none; cursor: pointer;
-        transition: transform var(--au-dur-3) var(--au-ease-spring), box-shadow var(--au-dur-3) var(--au-ease-out);
-      }
-      .chcard:focus { transform: scale(1.03); background: var(--au-surface-2);
-        box-shadow: 0 0 0 3px color-mix(in srgb, var(--au-primary) 60%, transparent), 0 12px 32px rgba(0,0,0,.5); }
+      .chcard { background: var(--au-surface); border: 1px solid var(--au-border); border-left: 4px solid var(--ac, var(--au-primary));
+        border-radius: var(--au-radius-md); padding: 14px 16px; outline: none; cursor: pointer;
+        transition: transform var(--au-dur-3) var(--au-ease-spring), box-shadow var(--au-dur-3) var(--au-ease-out); }
+      .chcard:focus { transform: scale(1.03); background: var(--au-surface-2); box-shadow: 0 0 0 3px color-mix(in srgb, var(--au-primary) 60%, transparent), 0 12px 32px rgba(0,0,0,.5); }
       .chhead { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; }
       .chhead .num { font-weight: 700; color: var(--ac, var(--au-text)); }
       .chhead .src { font: var(--au-caption); color: var(--au-text-2); }
@@ -206,81 +224,60 @@
       .chnow, .chnext, .recmeta { font: var(--au-caption); color: var(--au-text-2); margin-top: 2px; }
       .chnow b, .chnext b { color: var(--au-text); margin-right: 6px; }
       .reccard { min-width: 220px; }
-      .badge { font: var(--au-caption); font-size: 12px; font-weight: 700; border-radius: 999px;
-        padding: 3px 9px; display: inline-flex; align-items: center; gap: 6px; }
+      .badge { font: var(--au-caption); font-size: 12px; font-weight: 700; border-radius: 999px; padding: 3px 9px; display: inline-flex; align-items: center; gap: 6px; }
       .badge.rec { background: color-mix(in srgb, #EA4335 22%, transparent); color: #ff7a70; }
       .badge.recorded { background: color-mix(in srgb, #34C759 20%, transparent); color: #54d97e; }
       .badge.scheduled { background: color-mix(in srgb, var(--au-primary) 22%, transparent); color: #7aa6ff; }
       .badge .dot { width: 8px; height: 8px; border-radius: 50%; background: currentColor; }
       .badge.rec .dot { animation: blink 1.2s steps(2, start) infinite; }
       @keyframes blink { 50% { opacity: .25; } }
-      :root[data-au-motion="reduced"] .badge.rec .dot { animation: none; }
-
-      /* ---------- Search / Settings ---------- */
       .muted { color: var(--au-text-2); font: var(--au-caption); }
-      .setrow {
-        display: flex; align-items: center; justify-content: space-between;
-        background: var(--au-surface); border: 1px solid var(--au-border); border-radius: var(--au-radius-md);
-        padding: 14px 18px; margin: 10px 0; outline: none; cursor: pointer;
-      }
+      .setrow { display: flex; align-items: center; justify-content: space-between; background: var(--au-surface); border: 1px solid var(--au-border);
+        border-radius: var(--au-radius-md); padding: 14px 18px; margin: 10px 0; outline: none; cursor: pointer; }
       .setrow:focus { border-color: var(--au-primary); box-shadow: 0 0 0 3px color-mix(in srgb, var(--au-primary) 45%, transparent); }
-      .setrow .lbl { display: flex; align-items: center; gap: 12px; }
-      .setrow .lbl .icn { color: var(--au-text-2); }
+      .setrow .lbl { display: flex; align-items: center; gap: 12px; } .setrow .lbl .icn { color: var(--au-text-2); }
       .setrow .val { color: var(--au-text-2); }
       .chips { display: flex; gap: 8px; flex-wrap: wrap; margin: 6px 0 14px; }
-      .chip { font: var(--au-caption); background: var(--au-surface-2); border: 1px solid var(--au-border-2);
-        border-radius: 999px; padding: 4px 10px; }
+      .chip { font: var(--au-caption); background: var(--au-surface-2); border: 1px solid var(--au-border-2); border-radius: 999px; padding: 4px 10px; }
 
-      /* ---------- status + overlay ---------- */
-      .status { color: var(--au-text-2); font: var(--au-caption); padding: 6px clamp(20px, 3vw, 40px); min-height: 1.4em; }
+      :root[data-au-motion="reduced"] * { animation: none !important; }
+
+      /* status + overlay */
+      .status { color: var(--au-text-2); font: var(--au-caption); padding: 4px clamp(18px, 2.4vw, 34px) 8px; min-height: 1.3em; }
       .status b { color: var(--au-text); }
-      .overlay {
-        position: fixed; inset: 0; background: var(--au-scrim); display: flex;
-        align-items: center; justify-content: center; backdrop-filter: blur(6px);
-        opacity: 0; visibility: hidden;
-        transition: opacity var(--au-dur-3) var(--au-ease-out), visibility 0s linear var(--au-dur-3);
-      }
+      .overlay { position: fixed; inset: 0; background: var(--au-scrim); display: flex; align-items: center; justify-content: center; backdrop-filter: blur(6px);
+        opacity: 0; visibility: hidden; transition: opacity var(--au-dur-3) var(--au-ease-out), visibility 0s linear var(--au-dur-3); }
       .overlay.open { opacity: 1; visibility: visible; transition: opacity var(--au-dur-3) var(--au-ease-out); }
       .overlay.open .sheet { animation: au-pop var(--au-dur-3) var(--au-ease-spring); }
-      :root[data-au-motion="reduced"] .overlay { transition: none; }
-      .sheet {
-        width: min(560px, 86vw); background: var(--au-surface); border: 1px solid var(--au-border-2);
-        border-radius: var(--au-radius-xl); padding: 28px; box-shadow: 0 24px 64px rgba(0,0,0,.6);
-      }
+      .sheet { width: min(560px, 86vw); background: var(--au-surface); border: 1px solid var(--au-border-2); border-radius: var(--au-radius-xl);
+        padding: 28px; box-shadow: 0 24px 64px rgba(0,0,0,.6); }
       .sheet h3 { font: var(--au-display); font-size: 26px; margin: 0 0 6px; }
       .sheet .meta { color: var(--au-text-2); margin-bottom: 18px; display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
       .sheet .bar { height: 6px; background: var(--au-surface-2); border-radius: 4px; overflow: hidden; margin-bottom: 18px; }
       .sheet .bar > i { display: block; height: 100%; background: var(--au-primary); }
       .sheet .btns { display: flex; gap: 12px; flex-wrap: wrap; }
-      .sheet button {
-        font: var(--au-body); font-size: 16px; color: var(--au-text); border: 0; cursor: pointer;
-        border-radius: var(--au-radius-sm); padding: 12px 22px; outline: none; background: var(--au-surface-2);
-        display: inline-flex; align-items: center; gap: 8px;
-      }
+      .sheet button { font: var(--au-body); font-size: 16px; color: var(--au-text); border: 0; cursor: pointer; border-radius: var(--au-radius-sm);
+        padding: 12px 22px; outline: none; background: var(--au-surface-2); display: inline-flex; align-items: center; gap: 8px; }
       .sheet button.play { background: var(--au-primary); color: #fff; }
       .sheet button:focus { box-shadow: 0 0 0 3px color-mix(in srgb, var(--au-primary) 60%, transparent); }
     </style>
   </head>
   <body>
     <aside class="sidebar">
-      <div class="brand">
-        <span class="logo" id="brandlogo"></span>
-        <span class="name"><b>LiteTV</b> <span>OS</span></span>
-      </div>
+      <div class="brand"><span class="logo" id="brandlogo"></span><span class="name"><b>LiteTV</b> <span>OS</span></span></div>
       <nav id="nav"></nav>
       <div class="grow"></div>
-      <div class="hint">↑↓ navigate · → open · Enter select</div>
+      <div id="sideextras"></div>
     </aside>
 
     <div class="stage">
       <header class="topbar">
-        <label class="searchbar" id="searchbar">
-          <span id="micicon"></span>
-          <input id="topsearch" type="text" placeholder="Search movies, shows, apps…" aria-label="Search" />
-        </label>
+        <label class="searchbar" id="searchbar"><span id="micicon"></span>
+          <input id="topsearch" type="text" placeholder="Search movies, shows, apps…" aria-label="Search" /></label>
         <span class="topspacer"></span>
         <div class="statusbtns">
           <span class="iconbtn" id="wifibtn" title="Wi-Fi · LiteTV_5G" tabindex="-1"></span>
+          <span class="iconbtn" id="bellbtn" title="Notifications" tabindex="-1"></span>
           <span class="iconbtn" id="setbtn" title="Settings" tabindex="-1"></span>
           <span class="avatar" id="profilebtn" title="Profile" tabindex="-1"></span>
         </div>
@@ -301,55 +298,68 @@
       const overlayEl = $("#overlay"), sheetEl = $("#sheet"), topSearch = $("#topsearch");
 
       const SECTIONS = [
-        { id: "home",     label: "Home",     icon: "home" },
-        { id: "search",   label: "Search",   icon: "search" },
-        { id: "apps",     label: "Apps",     icon: "grid" },
-        { id: "livetv",   label: "Live TV",  icon: "tv" },
-        { id: "media",    label: "Media",    icon: "media" },
+        { id: "home", label: "Home", icon: "home" },
+        { id: "search", label: "Search", icon: "search" },
+        { id: "apps", label: "Apps", icon: "grid" },
+        { id: "livetv", label: "Live TV", icon: "tv" },
+        { id: "media", label: "Media", icon: "media" },
         { id: "settings", label: "Settings", icon: "cog" },
       ];
       const COLS = 6;
+      const state = { zone: "content", section: "home", navIndex: 0, rows: [], focus: { r: 0, c: 0 }, desiredCol: 0 };
+      let glance = null;
 
-      const state = {
-        zone: "content",        // "nav" | "top" | "content"
-        section: "home",
-        navIndex: 0,
-        rows: [],               // Element[][] for the active section
-        focus: { r: 0, c: 0 },
-        desiredCol: 0,
-      };
-
-      const api = async (p) => {
-        try { const r = await fetch(p); return r.ok ? await r.json() : null; } catch { return null; }
-      };
+      const api = async (p) => { try { const r = await fetch(p); return r.ok ? await r.json() : null; } catch { return null; } };
       const setStatus = (html) => (statusEl.innerHTML = html);
 
       // chrome glyphs
       $("#brandlogo").innerHTML = icon("tv", { size: 20 });
       $("#micicon").innerHTML = icon("mic", { size: 18 });
       $("#wifibtn").innerHTML = icon("wifi", { size: 20 });
+      $("#bellbtn").innerHTML = icon("bell", { size: 20 });
       $("#setbtn").innerHTML = icon("cog", { size: 20 });
       $("#profilebtn").innerHTML = icon("user", { size: 20 });
       $("#wifibtn").onclick = () => setStatus(`${icon("wifi")} <b>Wi-Fi</b> · LiteTV_5G · Connected`);
+      $("#bellbtn").onclick = () => setStatus(`${icon("bell")} No new notifications`);
       $("#setbtn").onclick = () => selectSection("settings", true);
-      $("#profilebtn").onclick = () => setStatus(`${icon("user")} <b>Profile</b> · signed in`);
+      $("#profilebtn").onclick = () => selectSection("settings", true);
 
-      // ---------- sidebar nav ----------
+      // sidebar nav
       const navItems = SECTIONS.map((s, i) => {
-        const el = document.createElement("div");
-        el.className = "navitem"; el.tabIndex = 0; el.setAttribute("role", "tab");
+        const el = document.createElement("div"); el.className = "navitem"; el.tabIndex = 0; el.setAttribute("role", "tab");
         el.innerHTML = `${icon(s.icon, { size: 20 })}<span>${s.label}</span>`;
         el.addEventListener("click", () => { state.navIndex = i; selectSection(s.id, true); });
         navEl.appendChild(el); return el;
       });
-      function paintNav() {
-        navItems.forEach((el, i) =>
-          el.setAttribute("aria-current", String(SECTIONS[i].id === state.section)));
+      const paintNav = () => navItems.forEach((el, i) => el.setAttribute("aria-current", String(SECTIONS[i].id === state.section)));
+
+      function renderSidebarExtras() {
+        const g = glance; if (!g) return;
+        $("#sideextras").innerHTML = `
+          <div class="panel profilecard">
+            <span class="av">${icon("user", { size: 20 })}</span>
+            <div><div class="pn">${g.profile.name}</div>
+              <div class="pt">${icon("star", { size: 13 })}${g.profile.tier}</div></div>
+          </div>
+          <div class="panel sidecard">
+            <div class="h">Storage</div>
+            <div class="storage"><div class="ring" style="--pct:${g.storage.used_pct}"></div>
+              <div><div class="v">${g.storage.used_pct}%</div>
+                <div class="s">${g.storage.used_gb} GB / ${g.storage.total_gb} GB</div></div></div>
+          </div>
+          <div class="panel sidecard">
+            <div class="h">System</div>
+            <div class="sys">
+              <div class="col"><div class="top"><b>${g.system.cpu_c}°C</b><span>CPU</span></div>
+                <div class="meter"><i style="width:${Math.min(100, g.system.cpu_c)}%;background:linear-gradient(90deg,var(--au-primary),var(--au-secondary))"></i></div></div>
+              <div class="col"><div class="top"><b>${g.system.ram_pct}%</b><span>RAM</span></div>
+                <div class="meter"><i style="width:${g.system.ram_pct}%;background:linear-gradient(90deg,var(--au-secondary),var(--au-primary))"></i></div></div>
+            </div>
+          </div>`;
       }
+
       function selectSection(id, focusContent) {
-        state.section = id;
-        state.navIndex = Math.max(0, SECTIONS.findIndex((s) => s.id === id));
-        paintNav();
+        state.section = id; state.navIndex = Math.max(0, SECTIONS.findIndex((s) => s.id === id)); paintNav();
         loadSection(id).then(() => {
           if (focusContent) {
             if (id === "search") { state.zone = "top"; topSearch.focus(); }
@@ -357,9 +367,8 @@
           }
         });
       }
-
-      // ---------- section loading ----------
       async function loadSection(id) {
+        if (mainEl._heroTimer) { clearInterval(mainEl._heroTimer); mainEl._heroTimer = null; }
         mainEl.innerHTML = "";
         if (id === "home") await buildHome();
         else if (id === "apps") await buildApps();
@@ -372,291 +381,292 @@
 
       // ---------- Home ----------
       async function buildHome() {
-        const [home, apps] = await Promise.all([api("/api/home"), api("/api/apps")]);
+        const [featured, home, apps] = await Promise.all([api("/api/featured"), api("/api/home"), api("/api/apps")]);
+        const slides = featured?.slides ?? [];
         const rows = home?.rows ?? [];
         const cont = (rows.find((r) => /continue/i.test(r.title)) ?? rows[0])?.items ?? [];
+        const picks = (rows.find((r) => /recommend|pick/i.test(r.title)) ?? rows[1] ?? rows[0])?.items ?? [];
         state.rows = [];
 
-        heading("Continue Watching");
-        const heroes = document.createElement("div"); heroes.className = "heroes";
-        const heroEls = cont.slice(0, 4).map((m) => {
-          const el = document.createElement("div"); el.className = "hero"; el.tabIndex = 0;
-          el.style.setProperty("--ac", m.accent);
-          el.innerHTML = `<div class="body">
-            <p class="ttl">${m.title}</p>
-            <div class="sub">${m.subtitle} · ${m.genre}</div>
-            <div class="bar"><i style="width:${m.progress || 0}%"></i></div></div>`;
-          el._enter = () => openDetail(m);
-          el.addEventListener("click", () => openDetail(m));
-          heroes.appendChild(el); return el;
+        const wrap = document.createElement("div"); wrap.className = "homewrap";
+        const col = document.createElement("div"); col.className = "homemain";
+        const rail = document.createElement("div"); rail.className = "rail";
+        wrap.append(col, rail); mainEl.appendChild(wrap);
+
+        // hero
+        const hero = document.createElement("div"); hero.className = "hero";
+        hero.innerHTML = `<div class="copy">
+          <h1 id="heroH"></h1><p class="blurb" id="heroB"></p>
+          <div class="acts"><button class="hbtn" id="heroPlay">${icon("play")} Watch Now</button>
+            <button class="hbtn ghost" id="heroInfo">${icon("info")} More Info</button></div>
+          <div class="dots" id="heroDots"></div></div>`;
+        col.appendChild(hero);
+        const heroH = hero.querySelector("#heroH"), heroB = hero.querySelector("#heroB");
+        const heroPlay = hero.querySelector("#heroPlay"), heroInfo = hero.querySelector("#heroInfo");
+        const dotsEl = hero.querySelector("#heroDots");
+        let slide = 0, heroTimer = null;
+        const dotEls = slides.map((_, i) => { const d = document.createElement("span"); d.className = "d";
+          d.addEventListener("click", () => showSlide(i)); dotsEl.appendChild(d); return d; });
+        function showSlide(i) {
+          if (!slides.length) return; slide = i % slides.length; const s = slides[slide]; const m = s.media;
+          hero.style.setProperty("--hac", s.accent);
+          const parts = s.headline.split(" "); const last = parts.pop();
+          heroH.innerHTML = `${parts.join(" ")} <span class="ac">${last}</span>`;
+          heroB.textContent = s.blurb;
+          heroPlay.onclick = () => openDetail(m); heroInfo.onclick = () => openDetail(m);
+          heroPlay._enter = () => openDetail(m); heroInfo._enter = () => openDetail(m);
+          dotEls.forEach((d, k) => d.classList.toggle("on", k === slide));
+        }
+        if (slides.length) { showSlide(0); state.rows.push([heroPlay, heroInfo]);
+          heroTimer = setInterval(() => showSlide(slide + 1), 8000); mainEl._heroTimer = heroTimer; }
+
+        // top picks
+        head(col, "Top Picks For You", "star");
+        const pk = document.createElement("div"); pk.className = "picks";
+        const pkEls = picks.map((m) => {
+          const el = document.createElement("div"); el.className = "poster"; el.tabIndex = 0; el.style.setProperty("--ac", m.accent);
+          el.innerHTML = `<div class="grad"></div>
+            <span class="rate">${icon("star", { size: 12 })}${m.rating}</span>
+            <span class="pt">${m.title}</span>`;
+          el._enter = () => openDetail(m); el.addEventListener("click", () => openDetail(m));
+          pk.appendChild(el); return el;
         });
-        mainEl.appendChild(heroes);
-        if (heroEls.length) state.rows.push(heroEls);
+        col.appendChild(pk); if (pkEls.length) state.rows.push(pkEls);
 
-        heading("Your Apps");
+        // your apps
+        head(col, "Your Apps", "grid");
         const list = document.createElement("div"); list.className = "applist";
-        const picks = (apps?.apps ?? []).slice(0, 7);
-        const appEls = picks.map((a) => appLogo(a));
+        const appEls = (apps?.apps ?? []).slice(0, 7).map((a) => appLogo(a));
         const all = document.createElement("div"); all.className = "applogo all"; all.tabIndex = 0;
-        all.innerHTML = `${icon("grid", { size: 24 })}<span class="nm">All Apps</span>`;
-        all._enter = () => selectSection("apps", true);
-        all.addEventListener("click", () => selectSection("apps", true));
-        appEls.push(all);
-        appEls.forEach((e) => list.appendChild(e));
-        mainEl.appendChild(list);
-        state.rows.push(appEls);
+        all.innerHTML = `${icon("grid", { size: 22 })}<span class="nm">All Apps</span>`;
+        all._enter = () => selectSection("apps", true); all.addEventListener("click", () => selectSection("apps", true));
+        appEls.push(all); appEls.forEach((e) => list.appendChild(e)); col.appendChild(list); state.rows.push(appEls);
 
-        heading("Recently Used");
+        // recently used
+        head(col, "Recently Used", "media");
         const recents = [
+          { label: "File Manager", icon: "folder", go: () => launch("File Manager") },
           { label: "Live TV", icon: "tv", go: () => selectSection("livetv", true) },
           { label: "Music", icon: "music", go: () => launch("Music") },
           { label: "Browser", icon: "globe", go: () => launch("Browser") },
           { label: "Gallery", icon: "image", go: () => launch("Gallery") },
-          { label: "Settings", icon: "cog", go: () => selectSection("settings", true) },
           { label: "Bluetooth", icon: "bluetooth", go: () => setStatus(`${icon("bluetooth")} <b>Bluetooth</b> · On`) },
         ];
         const chipRow = document.createElement("div"); chipRow.className = "chiprow";
-        const chipEls = recents.map((c) => {
-          const el = document.createElement("div"); el.className = "chip2"; el.tabIndex = 0;
-          el.innerHTML = `${icon(c.icon, { size: 18 })}<span>${c.label}</span>`;
-          el._enter = c.go; el.addEventListener("click", c.go);
-          chipRow.appendChild(el); return el;
+        const chipEls = recents.map((c) => { const el = document.createElement("div"); el.className = "chip2"; el.tabIndex = 0;
+          el.innerHTML = `${icon(c.icon, { size: 18 })}<span>${c.label}</span>`; el._enter = c.go; el.addEventListener("click", c.go);
+          chipRow.appendChild(el); return el; });
+        col.appendChild(chipRow); state.rows.push(chipEls);
+
+        // voice bar
+        const vb = document.createElement("div"); vb.className = "voicebar"; vb.tabIndex = 0;
+        vb.innerHTML = `${icon("mic", { size: 20 })}<span class="vt">Try saying “Play action movies”</span>`;
+        vb._enter = () => setStatus(`${icon("mic")} <b>Listening…</b> try “Play action movies”`);
+        vb.addEventListener("click", vb._enter); col.appendChild(vb); state.rows.push([vb]);
+
+        // ----- right rail -----
+        const g = glance;
+        // continue watching card
+        if (cont.length) {
+          const m = cont[0];
+          const panel = document.createElement("div"); panel.className = "panel";
+          panel.innerHTML = `<div class="ph">${icon("play", { size: 16 })} Continue Watching</div>`;
+          const cw = document.createElement("div"); cw.className = "cw"; cw.tabIndex = 0; cw.style.setProperty("--ac", m.accent);
+          cw.innerHTML = `<div class="art"></div><div class="b"><div class="t">${m.title}</div>
+            <div class="s">${m.subtitle} · ${m.genre}</div>
+            <div class="bar"><i style="width:${m.progress || 0}%"></i></div>
+            <div class="left">${Math.max(1, Math.round((100 - (m.progress || 0)) * 1.2))} min left</div></div>`;
+          cw._enter = () => openDetail(m); cw.addEventListener("click", () => openDetail(m));
+          panel.appendChild(cw); rail.appendChild(panel); state.rows.push([cw]);
+        }
+        // quick settings
+        const qpanel = document.createElement("div"); qpanel.className = "panel";
+        qpanel.innerHTML = `<div class="ph">${icon("cog", { size: 16 })} Quick Settings</div>`;
+        const qs = document.createElement("div"); qs.className = "qs";
+        const qdefs = [
+          { label: "Wi-Fi", icon: "wifi", on: true }, { label: "Bluetooth", icon: "bluetooth", on: false },
+          { label: "Picture", icon: "picture", on: false }, { label: "Sound", icon: "volume", on: false },
+          { label: "Input", icon: "hdmi", on: false }, { label: "All Settings", icon: "cog", on: false },
+        ];
+        const qEls = qdefs.map((q) => {
+          const el = document.createElement("div"); el.className = "qtile" + (q.on ? " on" : ""); el.tabIndex = 0;
+          el.innerHTML = `${icon(q.icon, { size: 18 })}<span>${q.label}</span>`;
+          const act = () => { if (q.label === "All Settings") return selectSection("settings", true);
+            if (q.label === "Input") return selectSection("livetv", true);
+            el.classList.toggle("on"); setStatus(`<b>${q.label}</b> · ${el.classList.contains("on") ? "On" : "Off"}`); };
+          el._enter = act; el.addEventListener("click", act); qs.appendChild(el); return el;
         });
-        mainEl.appendChild(chipRow);
-        state.rows.push(chipEls);
+        qpanel.appendChild(qs); rail.appendChild(qpanel);
+        for (const r of chunk(qEls, 2)) state.rows.push(r);
+
+        // weather / reminder / tips (static glance widgets)
+        if (g) {
+          const w = document.createElement("div"); w.className = "panel";
+          w.innerHTML = `<div class="ph">Weather · ${g.weather.place}</div>
+            <div class="weather"><span class="ic">${icon("cloud", { size: 38 })}</span>
+              <div><div class="tw">${g.weather.temp_c}°</div><div class="cw2">${g.weather.cond}</div></div>
+              <div style="margin-left:auto;text-align:right" class="pl">H: ${g.weather.hi_c}°<br>L: ${g.weather.lo_c}°</div></div>`;
+          rail.appendChild(w);
+          const rem = document.createElement("div"); rem.className = "panel rem";
+          rem.innerHTML = `<div class="t">${icon("calendar", { size: 18 })} Next Reminder</div>
+            <div class="s"><b style="color:var(--au-text)">${g.reminder.title}</b><br>${g.reminder.when}</div>`;
+          rail.appendChild(rem);
+          const tip = document.createElement("div"); tip.className = "panel tips";
+          tip.innerHTML = `<div class="t">${icon("bulb", { size: 18 })} Tips</div><div class="s">${g.tips}</div>`;
+          rail.appendChild(tip);
+        }
       }
       function appLogo(a) {
         const el = document.createElement("div"); el.className = "applogo"; el.tabIndex = 0;
         el.style.background = `linear-gradient(135deg, ${a.accent}, color-mix(in srgb, ${a.accent} 55%, #05070b))`;
         el.innerHTML = `${icon(a.icon, { size: 26 })}<span class="nm">${a.name}</span>`;
-        el._enter = () => launch(a.name); el.addEventListener("click", () => launch(a.name));
-        return el;
+        el._enter = () => launch(a.name); el.addEventListener("click", () => launch(a.name)); return el;
       }
 
-      // ---------- Apps (with category filter) ----------
+      // ---------- Apps ----------
       let appsCache = [];
       async function buildApps() {
         const data = await api("/api/apps"); appsCache = data?.apps ?? [];
         const cats = ["All", ...Array.from(new Set(appsCache.map((a) => a.category)))];
-        heading("Apps");
+        head(mainEl, "Apps", "grid");
         const catRow = document.createElement("div"); catRow.className = "cats";
         let active = "All";
         const grid = document.createElement("div"); grid.className = "grid";
-        const renderGrid = () => {
-          grid.innerHTML = "";
-          const shown = appsCache.filter((a) => active === "All" || a.category === active);
-          const tiles = shown.map((a) => appTile(a));
-          tiles.forEach((t) => grid.appendChild(t));
-          state.rows = [catEls, ...chunk(tiles, COLS)];
-        };
-        const catEls = cats.map((c) => {
-          const el = document.createElement("div"); el.className = "chip2 cat"; el.tabIndex = 0;
-          el.setAttribute("aria-pressed", String(c === active));
-          el.textContent = c;
+        const renderGrid = () => { grid.innerHTML = "";
+          const tiles = appsCache.filter((a) => active === "All" || a.category === active).map((a) => appTile(a));
+          tiles.forEach((t) => grid.appendChild(t)); state.rows = [catEls, ...chunk(tiles, COLS)]; };
+        const catEls = cats.map((c) => { const el = document.createElement("div"); el.className = "chip2 cat"; el.tabIndex = 0;
+          el.setAttribute("aria-pressed", String(c === active)); el.textContent = c;
           const pick = () => { active = c; catEls.forEach((x, i) => x.setAttribute("aria-pressed", String(cats[i] === active)));
             renderGrid(); state.focus = { r: 0, c: catEls.indexOf(el) }; applyFocus(); };
-          el._enter = pick; el.addEventListener("click", pick);
-          catRow.appendChild(el); return el;
-        });
-        mainEl.appendChild(catRow);
-        mainEl.appendChild(grid);
-        renderGrid();
+          el._enter = pick; el.addEventListener("click", pick); catRow.appendChild(el); return el; });
+        mainEl.appendChild(catRow); mainEl.appendChild(grid); renderGrid();
       }
       function appTile(a) {
         const t = document.createElement("div"); t.className = "tile"; t.tabIndex = 0;
-        t.innerHTML = `<span class="glyph" style="background:${a.accent}">${icon(a.icon, { size: 28 })}</span>
-                       <span class="name">${a.name}</span>`;
-        t._enter = () => launch(a.name); t.addEventListener("click", () => launch(a.name));
-        return t;
+        t.innerHTML = `<span class="glyph" style="background:${a.accent}">${icon(a.icon, { size: 28 })}</span><span class="name">${a.name}</span>`;
+        t._enter = () => launch(a.name); t.addEventListener("click", () => launch(a.name)); return t;
       }
 
-      // ---------- Media (portrait rows) ----------
+      // ---------- Media ----------
       async function buildMedia() {
-        const home = await api("/api/home"); const rows = home?.rows ?? [];
-        state.rows = [];
-        for (const row of rows) {
-          heading(row.title);
+        const home = await api("/api/home"); const rows = home?.rows ?? []; state.rows = [];
+        for (const row of rows) { head(mainEl, row.title, "media");
           const rd = document.createElement("div"); rd.className = "row";
           const els = (row.items ?? []).map((m) => { const c = mediaCard(m); rd.appendChild(c); return c; });
-          mainEl.appendChild(rd);
-          if (els.length) state.rows.push(els);
-        }
+          mainEl.appendChild(rd); if (els.length) state.rows.push(els); }
       }
       function mediaCard(m) {
         const card = document.createElement("aurora-card");
-        card.setAttribute("title", m.title);
-        card.setAttribute("subtitle", `${m.subtitle} · ${m.genre}`);
-        card.setAttribute("accent", m.accent);
+        card.setAttribute("title", m.title); card.setAttribute("subtitle", `${m.subtitle} · ${m.genre}`); card.setAttribute("accent", m.accent);
         if (m.progress > 0) card.setAttribute("progress", m.progress / 100);
         card.innerHTML = `<button slot="actions" data-action="play" aria-label="Play">${icon("play", { size: 20 })}</button>
                           <button slot="actions" data-action="info" aria-label="Info">${icon("info", { size: 20 })}</button>`;
-        card.addEventListener("au-select", () => openDetail(m));
-        return card;
+        card.addEventListener("au-select", () => openDetail(m)); return card;
       }
 
       // ---------- Live TV ----------
       async function buildLiveTV() {
         const [inp, chs, rec] = await Promise.all([api("/api/inputs"), api("/api/channels"), api("/api/recordings")]);
-        const inputs = inp?.inputs ?? [], channels = chs?.channels ?? [], records = rec?.recordings ?? [];
-        state.rows = [];
-
-        heading("Inputs");
+        const inputs = inp?.inputs ?? [], channels = chs?.channels ?? [], records = rec?.recordings ?? []; state.rows = [];
+        head(mainEl, "Inputs", "hdmi");
         const irow = document.createElement("div"); irow.className = "row";
-        const inputEls = inputs.map((i) => {
-          const t = document.createElement("div"); t.className = "tile input"; t.tabIndex = 0;
-          t.innerHTML = `<span class="glyph" style="background:var(--au-surface-2)">${icon(kindIcon(i.kind), { size: 26 })}</span>
-                         <span class="name">${i.name}</span>`;
-          t._enter = () => switchInput(i.name); t.addEventListener("click", () => switchInput(i.name));
-          irow.appendChild(t); return t;
-        });
-        mainEl.appendChild(irow);
-        if (inputEls.length) state.rows.push(inputEls);
-
-        heading("Channel Guide");
+        const inputEls = inputs.map((i) => { const t = document.createElement("div"); t.className = "tile input"; t.tabIndex = 0;
+          t.innerHTML = `<span class="glyph" style="background:var(--au-surface-2)">${icon(kindIcon(i.kind), { size: 26 })}</span><span class="name">${i.name}</span>`;
+          t._enter = () => switchInput(i.name); t.addEventListener("click", () => switchInput(i.name)); irow.appendChild(t); return t; });
+        mainEl.appendChild(irow); if (inputEls.length) state.rows.push(inputEls);
+        head(mainEl, "Channel Guide", "tv");
         const guide = document.createElement("div"); guide.className = "guide";
-        const chEls = channels.map((c) => {
-          const card = document.createElement("div"); card.className = "chcard"; card.tabIndex = 0;
-          card.style.setProperty("--ac", c.accent);
+        const chEls = channels.map((c) => { const card = document.createElement("div"); card.className = "chcard"; card.tabIndex = 0; card.style.setProperty("--ac", c.accent);
           card.innerHTML = `<div class="chhead"><span class="num">${c.number}</span><span class="src">${c.source}</span></div>
-            <div class="chname">${c.name}</div>
-            <div class="chnow"><b>Now</b>${c.now}</div><div class="chnext"><b>Next</b>${c.next}</div>`;
-          card._enter = () => openChannel(c); card.addEventListener("click", () => openChannel(c));
-          guide.appendChild(card); return card;
-        });
-        mainEl.appendChild(guide);
-        state.rows.push(...chunk(chEls, 3));
-
-        if (records.length) {
-          heading("Recordings (DVR)");
+            <div class="chname">${c.name}</div><div class="chnow"><b>Now</b>${c.now}</div><div class="chnext"><b>Next</b>${c.next}</div>`;
+          card._enter = () => openChannel(c); card.addEventListener("click", () => openChannel(c)); guide.appendChild(card); return card; });
+        mainEl.appendChild(guide); state.rows.push(...chunk(chEls, 3));
+        if (records.length) { head(mainEl, "Recordings (DVR)", "record");
           const rrow = document.createElement("div"); rrow.className = "row";
-          const recEls = records.map((r) => {
-            const card = document.createElement("div"); card.className = "chcard reccard"; card.tabIndex = 0;
-            card.style.setProperty("--ac", r.accent);
-            card.innerHTML = `<div class="chhead"><span class="num">${r.channel}</span>${recBadge(r.status)}</div>
-              <div class="chname">${r.title}</div><div class="recmeta">${r.when} · ${r.duration}</div>`;
-            card._enter = () => openRecording(r); card.addEventListener("click", () => openRecording(r));
-            rrow.appendChild(card); return card;
-          });
-          mainEl.appendChild(rrow);
-          state.rows.push(recEls);
-        }
+          const recEls = records.map((r) => { const card = document.createElement("div"); card.className = "chcard reccard"; card.tabIndex = 0; card.style.setProperty("--ac", r.accent);
+            card.innerHTML = `<div class="chhead"><span class="num">${r.channel}</span>${recBadge(r.status)}</div><div class="chname">${r.title}</div><div class="recmeta">${r.when} · ${r.duration}</div>`;
+            card._enter = () => openRecording(r); card.addEventListener("click", () => openRecording(r)); rrow.appendChild(card); return card; });
+          mainEl.appendChild(rrow); state.rows.push(recEls); }
       }
       const switchInput = (name) => name && setStatus(`Switching input → <b>${name}</b>`);
       const kindIcon = (k) => ({ Tuner: "antenna", HDMI: "hdmi", Component: "rca", VGA: "monitor", Composite: "jack" }[k] || "jack");
-      const recBadge = (s) => {
-        const cls = s === "Recording" ? "rec" : s === "Recorded" ? "recorded" : "scheduled";
-        return `<span class="badge ${cls}"><span class="dot"></span>${s}</span>`;
-      };
+      const recBadge = (s) => { const cls = s === "Recording" ? "rec" : s === "Recorded" ? "recorded" : "scheduled";
+        return `<span class="badge ${cls}"><span class="dot"></span>${s}</span>`; };
       function openChannel(c) {
-        sheetEl.innerHTML = `<h3>${c.number} · ${c.name}</h3>
-          <div class="meta">${c.category} · ${c.source}</div>
-          <div class="chnow" style="font-size:15px"><b>Now</b>${c.now}</div>
-          <div class="chnext" style="font-size:15px;margin-bottom:18px"><b>Next</b>${c.next}</div>
+        sheetEl.innerHTML = `<h3>${c.number} · ${c.name}</h3><div class="meta">${c.category} · ${c.source}</div>
+          <div class="chnow" style="font-size:15px"><b>Now</b>${c.now}</div><div class="chnext" style="font-size:15px;margin-bottom:18px"><b>Next</b>${c.next}</div>
           <div class="btns"><button class="play" data-x="watch">${icon("play")} Watch Live</button>
-            <button data-x="record">${icon("record")} Record</button>
-            <button data-x="close">${icon("close")} Close</button></div>`;
-        openSheet((x) => {
-          if (x === "watch") setStatus(`${icon("tv")} <b>Tuned to ${c.number}</b> ${c.name} — ${c.now}`);
-          else if (x === "record") setStatus(`${icon("record")} <b>Recording:</b> ${c.now} on ${c.name}`);
-        });
+            <button data-x="record">${icon("record")} Record</button><button data-x="close">${icon("close")} Close</button></div>`;
+        openSheet((x) => { if (x === "watch") setStatus(`${icon("tv")} <b>Tuned to ${c.number}</b> ${c.name} — ${c.now}`);
+          else if (x === "record") setStatus(`${icon("record")} <b>Recording:</b> ${c.now} on ${c.name}`); });
         setStatus(`Opened <b>${c.name}</b>`);
       }
       function openRecording(r) {
         const playable = r.status === "Recorded";
-        sheetEl.innerHTML = `<h3>${r.title}</h3>
-          <div class="meta">Ch ${r.channel} · ${r.when} · ${r.duration} ${recBadge(r.status)}</div>
-          <div class="btns">
-            ${playable ? `<button class="play" data-x="play">${icon("play")} Play</button>` : ""}
+        sheetEl.innerHTML = `<h3>${r.title}</h3><div class="meta">Ch ${r.channel} · ${r.when} · ${r.duration} ${recBadge(r.status)}</div>
+          <div class="btns">${playable ? `<button class="play" data-x="play">${icon("play")} Play</button>` : ""}
             ${r.status === "Recording" ? `<button data-x="stop">${icon("stop")} Stop</button>` : ""}
             ${r.status === "Scheduled" ? `<button data-x="cancel">${icon("close")} Cancel</button>` : ""}
             <button data-x="close">${icon("close")} Close</button></div>`;
-        openSheet((x) => {
-          if (x === "play") setStatus(`${icon("play")} <b>Playing recording:</b> ${r.title}`);
+        openSheet((x) => { if (x === "play") setStatus(`${icon("play")} <b>Playing recording:</b> ${r.title}`);
           else if (x === "stop") setStatus(`${icon("stop")} <b>Stopped recording:</b> ${r.title}`);
-          else if (x === "cancel") setStatus(`${icon("close")} <b>Cancelled:</b> ${r.title}`);
-        });
+          else if (x === "cancel") setStatus(`${icon("close")} <b>Cancelled:</b> ${r.title}`); });
         setStatus(`Opened recording <b>${r.title}</b>`);
       }
 
-      // ---------- Search (driven by the top bar) ----------
+      // ---------- Search ----------
       let searchResultsEl = null, searchNoteEl = null, searchTimer = null;
       function buildSearch() {
         const note = document.createElement("p"); note.className = "muted";
         const results = document.createElement("div"); results.className = "grid";
-        mainEl.append(note, results);
-        searchNoteEl = note; searchResultsEl = results;
-        runSearch();
+        mainEl.append(note, results); searchNoteEl = note; searchResultsEl = results; runSearch();
       }
       async function runSearch() {
-        if (!searchResultsEl) return;
-        const q = topSearch.value.trim();
-        if (!q) { searchResultsEl.innerHTML = ""; searchNoteEl.textContent = "Type in the search bar to find movies, shows, apps and channels.";
-          state.rows = []; return; }
-        const data = await api("/api/search?q=" + encodeURIComponent(q));
-        const hits = data?.results ?? [];
-        searchNoteEl.textContent = `${hits.length} result${hits.length === 1 ? "" : "s"} for “${q}”`;
-        searchResultsEl.innerHTML = "";
+        if (!searchResultsEl) return; const q = topSearch.value.trim();
+        if (!q) { searchResultsEl.innerHTML = ""; searchNoteEl.textContent = "Type in the search bar to find movies, shows, apps and channels."; state.rows = []; return; }
+        const data = await api("/api/search?q=" + encodeURIComponent(q)); const hits = data?.results ?? [];
+        searchNoteEl.textContent = `${hits.length} result${hits.length === 1 ? "" : "s"} for “${q}”`; searchResultsEl.innerHTML = "";
         const els = hits.map((it) => {
           if (it.type === "app") { const t = appTile(it); searchResultsEl.appendChild(t); return t; }
-          if (it.type === "channel") {
-            const t = document.createElement("div"); t.className = "tile"; t.tabIndex = 0;
-            t.innerHTML = `<span class="glyph" style="background:${it.accent}">${icon("tv", { size: 26 })}</span>
-                           <span class="name">${it.number} ${it.name}</span>`;
-            t._enter = () => openChannel(it); t.addEventListener("click", () => openChannel(it));
-            searchResultsEl.appendChild(t); return t;
-          }
+          if (it.type === "channel") { const t = document.createElement("div"); t.className = "tile"; t.tabIndex = 0;
+            t.innerHTML = `<span class="glyph" style="background:${it.accent}">${icon("tv", { size: 26 })}</span><span class="name">${it.number} ${it.name}</span>`;
+            t._enter = () => openChannel(it); t.addEventListener("click", () => openChannel(it)); searchResultsEl.appendChild(t); return t; }
           const c = mediaCard(it); searchResultsEl.appendChild(c); return c;
         });
         state.rows = chunk(els, COLS);
       }
-      topSearch.addEventListener("input", () => {
-        if (state.section !== "search") { selectSection("search", false); }
-        clearTimeout(searchTimer); searchTimer = setTimeout(runSearch, 160);
-      });
+      topSearch.addEventListener("input", () => { if (state.section !== "search") selectSection("search", false);
+        clearTimeout(searchTimer); searchTimer = setTimeout(runSearch, 160); });
 
       // ---------- Settings ----------
       function buildSettings() {
-        heading("Settings");
+        head(mainEl, "Settings", "cog");
         const chips = document.createElement("div"); chips.className = "chips"; mainEl.appendChild(chips);
-        api("/api/specs").then((s) => {
-          if (!s) return;
-          const items = [["RAM", `≤ ${s.total_ram_mb_max} MB`], ["CPU idle", `< ${s.cpu_idle_pct_max}%`],
-            ["Boot", `< ${s.boot_s_max}s`], ["Launcher", `< ${s.launcher_start_ms_max}ms`],
-            ["Animation", `${s.animation_fps} FPS`], ["Image", `< ${s.system_image_gb_max} GB`]];
-          chips.innerHTML = items.map(([k, v]) => `<span class="chip">${k} ${v}</span>`).join("");
-        });
+        api("/api/specs").then((s) => { if (!s) return;
+          const items = [["RAM", `≤ ${s.total_ram_mb_max} MB`], ["CPU idle", `< ${s.cpu_idle_pct_max}%`], ["Boot", `< ${s.boot_s_max}s`],
+            ["Launcher", `< ${s.launcher_start_ms_max}ms`], ["Animation", `${s.animation_fps} FPS`], ["Image", `< ${s.system_image_gb_max} GB`]];
+          chips.innerHTML = items.map(([k, v]) => `<span class="chip">${k} ${v}</span>`).join(""); });
         const toggles = [
-          { name: "Theme", icon: "moon", vals: ["Dark", "Light"] },
-          { name: "Accent", icon: "sun", vals: ["Blue", "Purple", "Green", "Orange"] },
-          { name: "Power Mode", icon: "pulse", vals: ["Balanced", "Performance", "Battery Saver"] },
-          { name: "Reduced Motion", icon: "media", vals: ["Off", "On"] },
+          { name: "Theme", icon: "moon", vals: ["Dark", "Light"] }, { name: "Accent", icon: "sun", vals: ["Blue", "Purple", "Green", "Orange"] },
+          { name: "Power Mode", icon: "pulse", vals: ["Balanced", "Performance", "Battery Saver"] }, { name: "Reduced Motion", icon: "media", vals: ["Off", "On"] },
         ];
-        const rowEls = toggles.map((t) => {
-          let i = 0;
-          const el = document.createElement("div"); el.className = "setrow"; el.tabIndex = 0;
-          const render = () => el.innerHTML =
-            `<span class="lbl">${icon(t.icon, { size: 20 })}<span>${t.name}</span></span><span class="val">${t.vals[i]}</span>`;
-          render();
-          el._enter = () => { i = (i + 1) % t.vals.length; render(); applySetting(t.name, t.vals[i]);
-            setStatus(`<b>${t.name}</b> → ${t.vals[i]}`); };
-          el.addEventListener("click", el._enter);
-          mainEl.appendChild(el); return el;
-        });
+        const rowEls = toggles.map((t) => { let i = 0; const el = document.createElement("div"); el.className = "setrow"; el.tabIndex = 0;
+          const render = () => el.innerHTML = `<span class="lbl">${icon(t.icon, { size: 20 })}<span>${t.name}</span></span><span class="val">${t.vals[i]}</span>`; render();
+          el._enter = () => { i = (i + 1) % t.vals.length; render(); applySetting(t.name, t.vals[i]); setStatus(`<b>${t.name}</b> → ${t.vals[i]}`); };
+          el.addEventListener("click", el._enter); mainEl.appendChild(el); return el; });
         state.rows = rowEls.map((e) => [e]);
       }
       const ACCENTS = { Blue: "#3A7AFE", Purple: "#5C6BC0", Green: "#34C759", Orange: "#F4B400" };
-      function applySetting(name, val) {
-        const root = document.documentElement;
+      function applySetting(name, val) { const root = document.documentElement;
         if (name === "Theme") root.setAttribute("data-au-theme", val.toLowerCase());
-        else if (name === "Accent") { const c = ACCENTS[val];
-          if (c) { root.style.setProperty("--au-primary", c); root.style.setProperty("--au-accent", c); } }
-        else if (name === "Reduced Motion") root.setAttribute("data-au-motion", val === "On" ? "reduced" : "auto");
-      }
+        else if (name === "Accent") { const c = ACCENTS[val]; if (c) { root.style.setProperty("--au-primary", c); root.style.setProperty("--au-accent", c); } }
+        else if (name === "Reduced Motion") root.setAttribute("data-au-motion", val === "On" ? "reduced" : "auto"); }
 
-      // ---------- shared overlay ----------
+      // ---------- overlay ----------
       function openDetail(m) {
         sheetEl.innerHTML = `<h3>${m.title}</h3>
-          <div class="meta">${m.subtitle} · ${m.genre}${m.progress > 0 ? " · " + m.progress + "% watched" : ""}</div>
+          <div class="meta">${m.subtitle} · ${m.genre}${m.rating ? " · " + icon("star", { size: 14 }) + " " + m.rating : ""}${m.progress > 0 ? " · " + m.progress + "% watched" : ""}</div>
           <div class="bar"><i style="width:${m.progress || 0}%"></i></div>
           <div class="btns"><button class="play" data-x="play">${icon("play")} ${m.progress > 0 ? "Resume" : "Play"}</button>
             <button data-x="close">${icon("close")} Close</button></div>`;
@@ -664,70 +674,44 @@
         setStatus(`Opened <b>${m.title}</b>`);
       }
       function openSheet(onAction) {
-        overlayEl.classList.add("open");
-        const btns = [...sheetEl.querySelectorAll("button")];
-        if (btns.length) btns[0].focus();
-        sheetEl.onkeydown = (e) => {
-          if (e.key === "ArrowLeft" || e.key === "ArrowRight") { e.preventDefault();
-            btns[(btns.indexOf(document.activeElement) + 1) % btns.length].focus(); }
-        };
-        btns.forEach((b) => b.addEventListener("click", () => {
-          if (b.dataset.x !== "close" && onAction) onAction(b.dataset.x);
-          closeOverlay();
-        }));
+        overlayEl.classList.add("open"); const btns = [...sheetEl.querySelectorAll("button")]; if (btns.length) btns[0].focus();
+        sheetEl.onkeydown = (e) => { if (e.key === "ArrowLeft" || e.key === "ArrowRight") { e.preventDefault();
+          btns[(btns.indexOf(document.activeElement) + 1) % btns.length].focus(); } };
+        btns.forEach((b) => b.addEventListener("click", () => { if (b.dataset.x !== "close" && onAction) onAction(b.dataset.x); closeOverlay(); }));
       }
       function closeOverlay() { overlayEl.classList.remove("open"); sheetEl.onkeydown = null; applyFocus(); }
       const launch = (name) => name && setStatus(`${icon("play")} Launching <b>${name}</b>…`);
 
-      // ---------- focus + navigation ----------
-      const heading = (txt) => { const h = document.createElement("h2"); h.textContent = txt; mainEl.appendChild(h); };
+      // ---------- focus + nav ----------
+      const head = (parent, txt, ic) => { const h = document.createElement("h2");
+        h.innerHTML = `${ic ? icon(ic, { size: 18 }) : ""}<span>${txt}</span>`; parent.appendChild(h); };
       const chunk = (arr, n) => { const o = []; for (let i = 0; i < arr.length; i += n) o.push(arr.slice(i, i + n)); return o; };
       const cellAt = (f) => state.rows[f.r]?.[f.c] || null;
-
       function applyFocus() {
         if (state.zone === "nav") { navItems[state.navIndex].focus(); return; }
         if (state.zone === "top") { topSearch.focus(); return; }
-        const el = cellAt(state.focus);
-        if (el) { el.focus(); el.scrollIntoView({ block: "nearest", inline: "center", behavior: "smooth" }); }
+        const el = cellAt(state.focus); if (el) { el.focus(); el.scrollIntoView({ block: "nearest", inline: "center", behavior: "smooth" }); }
       }
       const clampCol = (r, want) => { const len = state.rows[r]?.length ?? 0; return len ? Math.min(want, len - 1) : 0; };
-
-      function navContent(dir) {
-        const f = state.focus;
+      function navContent(dir) { const f = state.focus;
         if (dir === "left") { if (f.c > 0) { f.c--; state.desiredCol = f.c; } else { state.zone = "nav"; applyFocus(); return; } }
         else if (dir === "right") { const max = (state.rows[f.r]?.length ?? 1) - 1; if (f.c < max) { f.c++; state.desiredCol = f.c; } }
         else if (dir === "up") { if (f.r > 0) { f.r--; f.c = clampCol(f.r, state.desiredCol); } else { state.zone = "top"; applyFocus(); return; } }
         else if (dir === "down") { if (f.r < state.rows.length - 1) { f.r++; f.c = clampCol(f.r, state.desiredCol); } }
         applyFocus();
       }
-      function navNav(dir) {
-        if (dir === "up" && state.navIndex > 0) state.navIndex--;
+      function navNav(dir) { if (dir === "up" && state.navIndex > 0) state.navIndex--;
         else if (dir === "down" && state.navIndex < SECTIONS.length - 1) state.navIndex++;
-        else if (dir === "right") { selectSection(SECTIONS[state.navIndex].id, true); return; }
-        applyFocus();
-      }
-      function navTop(dir) {
-        if (dir === "down") {
-          if (state.rows.length) { state.zone = "content"; state.focus = { r: 0, c: 0 }; applyFocus(); }
-        } else if (dir === "left") { state.zone = "nav"; applyFocus(); }
-      }
+        else if (dir === "right") { selectSection(SECTIONS[state.navIndex].id, true); return; } applyFocus(); }
+      function navTop(dir) { if (dir === "down") { if (state.rows.length) { state.zone = "content"; state.focus = { r: 0, c: 0 }; applyFocus(); } }
+        else if (dir === "left") { state.zone = "nav"; applyFocus(); } }
 
       const DIRS = { ArrowLeft: "left", ArrowRight: "right", ArrowUp: "up", ArrowDown: "down" };
       window.addEventListener("keydown", (e) => {
-        if (overlayEl.classList.contains("open")) {
-          if (e.key === "Escape" || e.key === "Backspace") { e.preventDefault(); closeOverlay(); }
-          return;
-        }
-        const dir = DIRS[e.key];
-        const typingTop = document.activeElement === topSearch;
-        if (dir) {
-          if (state.zone === "top" && typingTop && (dir === "left" || dir === "right")) return; // caret moves
-          e.preventDefault();
-          if (state.zone === "nav") navNav(dir);
-          else if (state.zone === "top") navTop(dir);
-          else navContent(dir);
-          return;
-        }
+        if (overlayEl.classList.contains("open")) { if (e.key === "Escape" || e.key === "Backspace") { e.preventDefault(); closeOverlay(); } return; }
+        const dir = DIRS[e.key]; const typingTop = document.activeElement === topSearch;
+        if (dir) { if (state.zone === "top" && typingTop && (dir === "left" || dir === "right")) return;
+          e.preventDefault(); if (state.zone === "nav") navNav(dir); else if (state.zone === "top") navTop(dir); else navContent(dir); return; }
         if (e.key === "Enter") {
           if (state.zone === "top") { e.preventDefault(); if (state.rows.length) navTop("down"); return; }
           if (state.zone === "nav") { e.preventDefault(); selectSection(SECTIONS[state.navIndex].id, true); return; }
@@ -737,18 +721,16 @@
         }
       });
 
-      // ---------- clock ----------
-      const tick = () => {
-        const d = new Date();
+      // clock
+      const tick = () => { const d = new Date();
         $("#clockT").textContent = d.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
-        $("#clockD").textContent = d.toLocaleDateString([], { weekday: "short", day: "numeric", month: "short" });
-      };
+        $("#clockD").textContent = d.toLocaleDateString([], { weekday: "short", day: "numeric", month: "short" }); };
       tick(); setInterval(tick, 10000);
 
-      // ---------- boot ----------
+      // boot
       setStatus("↑↓ navigate · → open · Enter select · search up top");
       paintNav();
-      selectSection("home", true);
+      api("/api/glance").then((g) => { glance = g; renderSidebarExtras(); selectSection("home", true); });
     </script>
   </body>
 </html>

@@ -12,8 +12,20 @@ pub struct MediaItem {
     pub subtitle: &'static str,
     pub genre: &'static str,
     pub accent: &'static str,
+    /// Critic-style score, 0.0..=10.0 (shown as a rating badge).
+    pub rating: &'static str,
     /// Watch progress, 0..=100 (0 = not started).
     pub progress: u8,
+}
+
+/// A featured hero slide for the home banner.
+#[derive(Clone, Copy, Debug)]
+pub struct Featured {
+    /// The media this slide promotes (resolves via [`find_media`]).
+    pub id: &'static str,
+    pub headline: &'static str,
+    pub blurb: &'static str,
+    pub accent: &'static str,
 }
 
 /// An installed application.
@@ -79,19 +91,31 @@ pub enum Hit {
 }
 
 pub static MEDIA: &[MediaItem] = &[
-    MediaItem { id: "aurora-origins", title: "Aurora Origins",  subtitle: "1h 52m", genre: "Documentary", accent: "#3A7AFE", progress: 42 },
-    MediaItem { id: "neon-drift",     title: "Neon Drift",      subtitle: "2h 08m", genre: "Action",      accent: "#EA4335", progress: 71 },
-    MediaItem { id: "quiet-tides",    title: "Quiet Tides",     subtitle: "1h 36m", genre: "Drama",       accent: "#34C759", progress: 15 },
-    MediaItem { id: "starfall",       title: "Starfall",        subtitle: "2h 44m", genre: "Sci-Fi",      accent: "#5C6BC0", progress: 90 },
-    MediaItem { id: "golden-hour",    title: "Golden Hour",     subtitle: "1h 21m", genre: "Romance",     accent: "#F4B400", progress: 33 },
-    MediaItem { id: "the-long-road",  title: "The Long Road",   subtitle: "2h 02m", genre: "Adventure",   accent: "#8E7CFF", progress: 0 },
-    MediaItem { id: "skyline",        title: "Skyline",         subtitle: "1h 47m", genre: "Thriller",    accent: "#3A7AFE", progress: 0 },
-    MediaItem { id: "echoes",         title: "Echoes",          subtitle: "1h 58m", genre: "Mystery",     accent: "#EA4335", progress: 0 },
-    MediaItem { id: "midnight-sun",   title: "Midnight Sun",    subtitle: "2h 12m", genre: "Sci-Fi",      accent: "#34C759", progress: 0 },
-    MediaItem { id: "paper-boats",    title: "Paper Boats",     subtitle: "1h 29m", genre: "Drama",       accent: "#5C6BC0", progress: 0 },
-    MediaItem { id: "lantern",        title: "Lantern",         subtitle: "1h 40m", genre: "Family",      accent: "#F4B400", progress: 0 },
-    MediaItem { id: "driftwood",      title: "Driftwood",       subtitle: "1h 33m", genre: "Documentary", accent: "#8E7CFF", progress: 0 },
+    MediaItem { id: "aurora-origins", title: "Aurora Origins",  subtitle: "S1 · E4", genre: "Documentary", accent: "#3A7AFE", rating: "8.4", progress: 42 },
+    MediaItem { id: "neon-drift",     title: "Neon Drift",      subtitle: "2h 08m", genre: "Action",      accent: "#EA4335", rating: "8.8", progress: 71 },
+    MediaItem { id: "quiet-tides",    title: "Quiet Tides",     subtitle: "1h 36m", genre: "Drama",       accent: "#34C759", rating: "7.9", progress: 15 },
+    MediaItem { id: "starfall",       title: "Starfall",        subtitle: "S2 · E8", genre: "Sci-Fi",      accent: "#5C6BC0", rating: "9.1", progress: 90 },
+    MediaItem { id: "golden-hour",    title: "Golden Hour",     subtitle: "1h 21m", genre: "Romance",     accent: "#F4B400", rating: "7.6", progress: 33 },
+    MediaItem { id: "the-long-road",  title: "The Long Road",   subtitle: "2h 02m", genre: "Adventure",   accent: "#8E7CFF", rating: "8.0", progress: 0 },
+    MediaItem { id: "skyline",        title: "Skyline",         subtitle: "1h 47m", genre: "Thriller",    accent: "#3A7AFE", rating: "8.3", progress: 0 },
+    MediaItem { id: "echoes",         title: "Echoes",          subtitle: "1h 58m", genre: "Mystery",     accent: "#EA4335", rating: "7.7", progress: 0 },
+    MediaItem { id: "midnight-sun",   title: "Midnight Sun",    subtitle: "S3 · E4", genre: "Sci-Fi",      accent: "#34C759", rating: "8.6", progress: 0 },
+    MediaItem { id: "paper-boats",    title: "Paper Boats",     subtitle: "1h 29m", genre: "Drama",       accent: "#5C6BC0", rating: "7.4", progress: 0 },
+    MediaItem { id: "lantern",        title: "Lantern",         subtitle: "1h 40m", genre: "Family",      accent: "#F4B400", rating: "8.1", progress: 0 },
+    MediaItem { id: "driftwood",      title: "Driftwood",       subtitle: "1h 33m", genre: "Documentary", accent: "#8E7CFF", rating: "8.2", progress: 0 },
 ];
+
+/// Hero slides for the home banner carousel.
+pub static FEATURED: &[Featured] = &[
+    Featured { id: "starfall",      headline: "Discover Your Next Adventure", blurb: "Explore unlimited movies, shows and more.", accent: "#5C6BC0" },
+    Featured { id: "neon-drift",    headline: "Tonight, Drive Into the Neon", blurb: "High-octane action, mastered for 4K HDR.",   accent: "#EA4335" },
+    Featured { id: "midnight-sun",  headline: "Worlds Beyond the Horizon",    blurb: "New sci-fi originals, only on LiteTV.",      accent: "#34C759" },
+    Featured { id: "aurora-origins",headline: "The Story of the Light",       blurb: "A documentary series in stunning detail.",   accent: "#3A7AFE" },
+];
+
+pub fn featured() -> &'static [Featured] {
+    FEATURED
+}
 
 pub static APPS: &[App] = &[
     App { id: "streamly",  name: "Streamly",  icon: "film",    accent: "#EA4335", category: "Streaming" },
@@ -263,6 +287,14 @@ mod tests {
     #[test]
     fn camera_app_present() {
         assert_eq!(find_app("camera").unwrap().name, "Camera");
+    }
+
+    #[test]
+    fn featured_slides_reference_real_media() {
+        assert!(!featured().is_empty());
+        assert!(featured().iter().all(|f| find_media(f.id).is_some()));
+        // Every media item carries a rating badge value.
+        assert!(MEDIA.iter().all(|m| !m.rating.is_empty()));
     }
 
     #[test]

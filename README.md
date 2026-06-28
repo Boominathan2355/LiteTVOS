@@ -44,16 +44,20 @@ renderer attach behind the launcher's `render` feature.
 a std-only HTTP backend when `PORT` is set — `PORT=8080 cargo run`). Deploy config
 in [render.yaml](render.yaml). This is a demo host, not the OS itself.
 
-The page is a full launcher shell — **left sidebar** (Home · Search · Apps ·
-Live TV · Media · Settings), a **top search bar** with status + clock, landscape
-**Continue Watching** heroes, an app row, Recently-Used chips, a DVR recordings
-strip, light/dark theming, and SVG icons — all focus-navigable and data-served by
-the Rust backend (`aurora-catalog` + `aurora-focus`):
+The page is a full launcher shell — **left sidebar** (with profile, storage ring
+and CPU/RAM meters), a **top search bar** with status + clock, a **hero banner**
+carousel, **Top Picks** with rating badges, an app row, Recently-Used chips, a
+**voice bar**, and a **widget rail** (Continue Watching, Quick Settings, Weather,
+Reminder, Tips) — plus Live TV/DVR, light/dark theming and SVG icons, all
+focus-navigable and data-served by the Rust backend (`aurora-catalog` +
+`aurora-focus`):
 
 | Endpoint | Returns |
 |----------|---------|
 | `GET /` | The Aurora UI launcher (SPA) |
-| `GET /api/home` | Home rows with media items |
+| `GET /api/home` | Home rows with media items (incl. ratings) |
+| `GET /api/featured` | Hero banner slides (headline + media) |
+| `GET /api/glance` | Sidebar/rail widgets (storage, system, weather, reminder) |
 | `GET /api/apps` | App library |
 | `GET /api/channels` | Live TV channels (cable + antenna) with now/next |
 | `GET /api/inputs` | Tuner & HDMI inputs |

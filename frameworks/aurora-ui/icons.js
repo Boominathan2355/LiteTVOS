@@ -55,6 +55,13 @@ const ICONS = {
   chevron: '<path d="M9 6l6 6-6 6"/>',
   sun:     '<circle cx="12" cy="12" r="4"/><path d="M12 2v2.5M12 19.5V22M2 12h2.5M19.5 12H22M5 5l1.7 1.7M17.3 17.3L19 19M5 19l1.7-1.7M17.3 6.7L19 5"/>',
   moon:    '<path d="M20 14.5A8 8 0 1 1 9.5 4 6.5 6.5 0 0 0 20 14.5z"/>',
+  bell:    '<path d="M6 9a6 6 0 0 1 12 0c0 5 2 6 2 6H4s2-1 2-6z"/><path d="M10 19a2 2 0 0 0 4 0"/>',
+  bulb:    '<path d="M9 18h6M10 21h4M8.5 14a5.5 5.5 0 1 1 7 0c-.8.7-1.5 1.4-1.5 2.5h-4c0-1.1-.7-1.8-1.5-2.5z"/>',
+  cloud:   '<path d="M7 18a4 4 0 0 1 .4-8A6 6 0 0 1 19 11.5 3.5 3.5 0 0 1 18 18z"/>',
+  calendar:'<rect x="3.5" y="5" width="17" height="16" rx="2"/><path d="M3.5 9.5h17M8 3v4M16 3v4"/>',
+  plus:    '<path d="M12 5v14M5 12h14"/>',
+  picture: '<rect x="3" y="5" width="18" height="13" rx="2"/><path d="M8 21h8"/><path d="M8 13l2.5-2.5L14 14l2-1.5L19 16"/>',
+  volume:  '<path d="M4 9v6h4l5 4V5L8 9z"/><path d="M16.5 9a4 4 0 0 1 0 6"/>',
 
   dot:     '<circle cx="12" cy="12" r="3" fill="currentColor" stroke="none"/>',
 };
