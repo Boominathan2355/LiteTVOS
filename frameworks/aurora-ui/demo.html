@@ -9,174 +9,378 @@
       html, body { height: 100%; }
       body {
         margin: 0; background: var(--au-bg); color: var(--au-text);
-        font-family: var(--au-font);
-        padding: var(--au-space-5) clamp(16px, 4vw, 56px) var(--au-space-6);
+        font-family: var(--au-font); overflow: hidden;
+        display: flex; flex-direction: column;
+        padding: var(--au-space-4) clamp(16px, 4vw, 56px) var(--au-space-3);
         box-sizing: border-box;
       }
-      header { display: flex; align-items: baseline; gap: 16px; flex-wrap: wrap; }
-      h1 { font: var(--au-display); font-size: 34px; margin: 0; }
-      .tag { color: var(--au-text-2); font: var(--au-body); }
-      .specs {
-        margin: 10px 0 4px; display: flex; gap: 8px; flex-wrap: wrap;
+      /* top bar */
+      .topbar { display: flex; align-items: center; gap: 16px; }
+      .brand { font: var(--au-display); font-size: 26px; margin: 0; }
+      .brand small { color: var(--au-text-2); font-size: 13px; font-weight: 400; }
+      .spacer { flex: 1; }
+      .clock { color: var(--au-text-2); font: var(--au-caption); font-size: 14px; }
+      /* tabs */
+      nav.tabs { display: flex; gap: 8px; margin: 14px 0 4px; }
+      .tab {
+        font: var(--au-caption); font-size: 15px; color: var(--au-text-2);
+        padding: 8px 16px; border-radius: 999px; cursor: pointer; outline: none;
+        border: 1px solid transparent; transition: all var(--au-dur-2) var(--au-ease-out);
+        white-space: nowrap;
       }
-      .chip {
-        font: var(--au-caption); color: var(--au-text);
-        background: var(--au-surface-2); border: 1px solid #2c2f36;
-        border-radius: 999px; padding: 4px 10px;
-      }
-      .hint { color: var(--au-text-2); font: var(--au-caption); margin: 6px 0 0; }
-      kbd {
-        background: var(--au-surface-2); border-radius: 6px; padding: 1px 6px;
-        font: var(--au-caption); border: 1px solid #333;
-      }
-      a { color: var(--au-primary); text-decoration: none; }
-      h2 { font: var(--au-heading); font-size: 20px; margin: 22px 0 12px; }
-      .row {
-        display: flex; gap: var(--au-space-4);
-        overflow-x: auto; padding: 18px 6px; scroll-padding-inline: 24px;
-      }
+      .tab[aria-selected="true"] { color: var(--au-text); background: var(--au-surface); }
+      .tab:focus { color: var(--au-text); border-color: var(--au-primary);
+        box-shadow: 0 0 0 3px color-mix(in srgb, var(--au-primary) 45%, transparent); }
+      /* content */
+      main { flex: 1; overflow-y: auto; padding-bottom: 24px; }
+      main::-webkit-scrollbar { width: 0; }
+      h2 { font: var(--au-heading); font-size: 18px; margin: 18px 0 10px; }
+      .row { display: flex; gap: 16px; overflow-x: auto; padding: 16px 4px; }
       .row::-webkit-scrollbar { height: 0; }
-      aurora-card { --au-card-w: 168px; scroll-snap-align: center; }
-      #status {
-        position: sticky; bottom: 0; margin-top: 12px; padding: 8px 0;
-        color: var(--au-text-2); font: var(--au-caption);
-        background: linear-gradient(transparent, var(--au-bg) 40%);
+      aurora-card { --au-card-w: 158px; }
+      /* app grid */
+      .grid { display: grid; grid-template-columns: repeat(6, 1fr); gap: 16px; padding: 12px 4px; }
+      .tile {
+        background: var(--au-surface); border-radius: var(--au-radius-md);
+        aspect-ratio: 1 / 1; display: flex; flex-direction: column;
+        align-items: center; justify-content: center; gap: 10px;
+        cursor: pointer; outline: none; border: 1px solid #23262d;
+        transition: transform var(--au-dur-3) var(--au-ease-spring),
+                    box-shadow var(--au-dur-3) var(--au-ease-out);
       }
-      #status b { color: var(--au-text); }
-      .src { color: var(--au-text-2); }
+      .tile .glyph {
+        width: 52px; height: 52px; border-radius: 14px; display: grid;
+        place-items: center; font-size: 24px; color: #fff; font-weight: 700;
+      }
+      .tile .name { font: var(--au-caption); font-size: 14px; }
+      .tile:focus { transform: scale(1.06);
+        box-shadow: 0 0 0 3px color-mix(in srgb, var(--au-primary) 70%, transparent),
+                    0 12px 32px rgba(0,0,0,.55);
+        background: var(--au-surface-2); }
+      /* search */
+      .search-box {
+        width: 100%; box-sizing: border-box; font: var(--au-body);
+        background: var(--au-surface); color: var(--au-text);
+        border: 1px solid #2c2f36; border-radius: var(--au-radius-md);
+        padding: 14px 18px; outline: none;
+      }
+      .search-box:focus { border-color: var(--au-primary);
+        box-shadow: 0 0 0 3px color-mix(in srgb, var(--au-primary) 40%, transparent); }
+      .muted { color: var(--au-text-2); font: var(--au-caption); }
+      /* settings */
+      .setrow {
+        display: flex; align-items: center; justify-content: space-between;
+        background: var(--au-surface); border: 1px solid #23262d;
+        border-radius: var(--au-radius-md); padding: 14px 18px; margin: 10px 0;
+        outline: none; cursor: pointer;
+      }
+      .setrow:focus { border-color: var(--au-primary);
+        box-shadow: 0 0 0 3px color-mix(in srgb, var(--au-primary) 45%, transparent); }
+      .setrow .val { color: var(--au-text-2); }
+      .chips { display: flex; gap: 8px; flex-wrap: wrap; margin: 8px 0 16px; }
+      .chip { font: var(--au-caption); background: var(--au-surface-2);
+        border: 1px solid #2c2f36; border-radius: 999px; padding: 4px 10px; }
+      /* footer + overlay */
+      .status { color: var(--au-text-2); font: var(--au-caption); padding: 6px 2px; min-height: 1.3em; }
+      .status b { color: var(--au-text); }
+      .overlay {
+        position: fixed; inset: 0; background: rgba(8,9,11,.72);
+        display: none; align-items: center; justify-content: center; backdrop-filter: blur(6px);
+      }
+      .overlay.open { display: flex; }
+      .sheet {
+        width: min(560px, 86vw); background: var(--au-surface);
+        border: 1px solid #2c2f36; border-radius: var(--au-radius-xl);
+        padding: 28px; box-shadow: 0 24px 64px rgba(0,0,0,.6);
+      }
+      .sheet h3 { font: var(--au-display); font-size: 26px; margin: 0 0 6px; }
+      .sheet .meta { color: var(--au-text-2); margin-bottom: 18px; }
+      .sheet .bar { height: 6px; background: #2a2d34; border-radius: 4px; overflow: hidden; margin-bottom: 18px; }
+      .sheet .bar > i { display: block; height: 100%; background: var(--au-primary); }
+      .sheet .btns { display: flex; gap: 12px; }
+      .sheet button {
+        font: var(--au-body); font-size: 16px; color: #fff; border: 0; cursor: pointer;
+        border-radius: var(--au-radius-sm); padding: 12px 22px; outline: none;
+        background: var(--au-surface-2);
+      }
+      .sheet button.play { background: var(--au-primary); }
+      .sheet button:focus { box-shadow: 0 0 0 3px color-mix(in srgb, var(--au-primary) 60%, transparent); }
     </style>
   </head>
   <body>
-    <header>
-      <h1>Aurora UI</h1>
-      <span class="tag">LiteTV OS — Beautiful Performance</span>
-    </header>
-    <div class="specs" id="specs"></div>
-    <p class="hint">
-      <kbd>←</kbd> <kbd>→</kbd> <kbd>↑</kbd> <kbd>↓</kbd> move focus ·
-      <kbd>Enter</kbd> select. Focus logic runs server-side in Rust via
-      <a href="/api/navigate?row=0&col=0&dir=right"><code>/api/navigate</code></a>.
-    </p>
+    <div class="topbar">
+      <h1 class="brand">Aurora UI <small>· LiteTV OS</small></h1>
+      <span class="spacer"></span>
+      <span class="clock" id="clock"></span>
+    </div>
+    <nav class="tabs" id="tabs"></nav>
+    <main id="main"></main>
+    <div class="status" id="status">↑↓←→ navigate · Enter select · type to search</div>
 
-    <main id="rows"></main>
-    <div id="status">Loading…</div>
+    <div class="overlay" id="overlay"><div class="sheet" id="sheet"></div></div>
 
     <script type="module">
       import "./components/aurora-card.js";
 
-      const ACCENTS = ["#3A7AFE", "#EA4335", "#34C759", "#5C6BC0", "#F4B400", "#8E7CFF"];
-      const NAMES = ["Aurora Origins","Neon Drift","Quiet Tides","Starfall","Golden Hour",
-        "The Long Road","Skyline","Echoes","Midnight Sun","Paper Boats","Lantern","Driftwood"];
-      const GENRES = ["Documentary","Action","Drama","Sci-Fi","Romance","Adventure"];
+      const $ = (sel) => document.querySelector(sel);
+      const tabsEl = $("#tabs"), mainEl = $("#main"), statusEl = $("#status");
+      const overlayEl = $("#overlay"), sheetEl = $("#sheet");
 
-      const rowsEl = document.getElementById("rows");
-      const statusEl = document.getElementById("status");
-      const specsEl = document.getElementById("specs");
+      const SECTIONS = [
+        { id: "home", label: "Home" },
+        { id: "apps", label: "Apps" },
+        { id: "search", label: "Search" },
+        { id: "settings", label: "Settings" },
+      ];
+      const COLS = 6;
 
-      let home = { rows: [] };
-      let focus = { row: 0, col: 0 };
-      let backend = true;
-
-      const api = async (path) => {
-        const r = await fetch(path);
-        if (!r.ok && r.status !== 400) throw new Error(path + " → " + r.status);
-        return r.json();
+      const state = {
+        zone: "content",     // "tabs" | "content"
+        tab: 0,
+        section: "home",
+        rows: [],            // Element[][] for the active section
+        focus: { r: 0, c: 0 },
+        desiredCol: 0,
+        onEnter: () => {},
+        onInput: null,       // search hook
       };
 
-      // Specs chips from /api/specs (graceful if offline).
-      try {
-        const s = await api("/api/specs");
-        const chips = [
-          ["RAM", `≤ ${s.total_ram_mb_max} MB`],
-          ["CPU idle", `< ${s.cpu_idle_pct_max}%`],
-          ["Boot", `< ${s.boot_s_max}s`],
-          ["Launcher", `< ${s.launcher_start_ms_max}ms`],
-          ["Anim", `${s.animation_fps} FPS`],
-          ["Image", `< ${s.system_image_gb_max} GB`],
-        ];
-        specsEl.innerHTML = chips.map(([k, v]) => `<span class="chip">${k} ${v}</span>`).join("");
-      } catch { specsEl.remove(); }
+      const api = async (p) => {
+        try { const r = await fetch(p); return r.ok ? await r.json() : null; }
+        catch { return null; }
+      };
+      const setStatus = (html) => (statusEl.innerHTML = html);
 
-      // Home layout from /api/home (fallback to a static row if opened as a file).
-      try {
-        home = await api("/api/home");
-      } catch {
-        backend = false;
-        home = { rows: [{ index: 0, title: "Continue Watching", items: 6 }] };
-      }
-
-      const cardEls = []; // cardEls[row][col]
-      home.rows.forEach((row, ri) => {
-        const h2 = document.createElement("h2");
-        h2.textContent = row.title;
-        rowsEl.appendChild(h2);
-        const rowDiv = document.createElement("div");
-        rowDiv.className = "row";
-        const cols = [];
-        for (let ci = 0; ci < row.items; ci++) {
-          const card = document.createElement("aurora-card");
-          card.setAttribute("title", NAMES[(ri * 3 + ci) % NAMES.length]);
-          card.setAttribute("subtitle",
-            `${1 + ((ri + ci) % 2)}h ${10 + ci * 7 % 50}m · ${GENRES[(ri + ci) % GENRES.length]}`);
-          card.setAttribute("accent", ACCENTS[(ri + ci) % ACCENTS.length]);
-          card.setAttribute("progress", ((ci * 17 + ri * 11) % 100) / 100);
-          card.innerHTML = `
-            <button slot="actions" data-action="play" aria-label="Play">▶</button>
-            <button slot="actions" data-action="info" aria-label="Info">ⓘ</button>`;
-          rowDiv.appendChild(card);
-          cols.push(card);
-        }
-        rowsEl.appendChild(rowDiv);
-        cardEls.push(cols);
+      // --- tab bar ---------------------------------------------------------
+      const tabEls = SECTIONS.map((s, i) => {
+        const t = document.createElement("div");
+        t.className = "tab"; t.tabIndex = 0; t.textContent = s.label;
+        t.setAttribute("role", "tab");
+        t.addEventListener("click", () => selectTab(i, true));
+        tabsEl.appendChild(t);
+        return t;
       });
-
-      const cardAt = (f) => cardEls[f.row]?.[f.col] || null;
-
-      function applyFocus() {
-        const el = cardAt(focus);
-        if (!el) return;
-        el.focus();
-        el.scrollIntoView({ inline: "center", block: "nearest", behavior: "smooth" });
-        const title = home.rows[focus.row]?.title ?? "";
-        statusEl.innerHTML =
-          `focus → <b>${title}</b> · row ${focus.row} · col ${focus.col}` +
-          (backend ? ` <span class="src">(via Rust /api/navigate)</span>`
-                   : ` <span class="src">(offline — local engine)</span>`);
+      function paintTabs() {
+        tabEls.forEach((t, i) => t.setAttribute("aria-selected", String(i === state.tab)));
+      }
+      function selectTab(i, enter) {
+        state.tab = i; paintTabs();
+        loadSection(SECTIONS[i].id).then(() => {
+          if (enter) { state.zone = "content"; state.focus = { r: 0, c: 0 }; state.desiredCol = 0; applyFocus(); }
+        });
       }
 
-      const DIRS = { ArrowLeft: "left", ArrowRight: "right", ArrowUp: "up", ArrowDown: "down" };
+      // --- section builders ------------------------------------------------
+      async function loadSection(id) {
+        state.section = id; state.onInput = null; mainEl.innerHTML = "";
+        if (id === "home") await buildHome();
+        else if (id === "apps") await buildApps();
+        else if (id === "search") buildSearch();
+        else buildSettings();
+      }
 
-      // Local clamp fallback when no backend (file:// use).
-      function localNavigate(dir) {
-        const rows = home.rows;
-        if (dir === "left") focus.col = Math.max(0, focus.col - 1);
-        else if (dir === "right") focus.col = Math.min(rows[focus.row].items - 1, focus.col + 1);
-        else if (dir === "up" && focus.row > 0) {
-          focus.row--; focus.col = Math.min(focus.col, rows[focus.row].items - 1);
-        } else if (dir === "down" && focus.row < rows.length - 1) {
-          focus.row++; focus.col = Math.min(focus.col, rows[focus.row].items - 1);
+      const mediaCard = (m) => {
+        const card = document.createElement("aurora-card");
+        card.setAttribute("title", m.title);
+        card.setAttribute("subtitle", `${m.subtitle} · ${m.genre}`);
+        card.setAttribute("accent", m.accent);
+        if (m.progress > 0) card.setAttribute("progress", m.progress / 100);
+        card.innerHTML = `<button slot="actions" data-action="play" aria-label="Play">▶</button>
+                          <button slot="actions" data-action="info" aria-label="Info">ⓘ</button>`;
+        card.addEventListener("au-select", () => openDetail(m));
+        return card;
+      };
+
+      async function buildHome() {
+        const data = await api("/api/home");
+        const rows = data?.rows ?? [];
+        state.rows = [];
+        for (const row of rows) {
+          const h = document.createElement("h2"); h.textContent = row.title; mainEl.appendChild(h);
+          const rd = document.createElement("div"); rd.className = "row";
+          const els = (row.items ?? []).map((m) => { const c = mediaCard(m); rd.appendChild(c); return c; });
+          mainEl.appendChild(rd);
+          if (els.length) state.rows.push(els);
         }
+        state.onEnter = () => {}; // cards handle their own au-select
       }
 
-      window.addEventListener("keydown", async (e) => {
-        const dir = DIRS[e.key];
-        if (!dir) return;
-        e.preventDefault();
-        if (backend) {
-          try {
-            const r = await api(`/api/navigate?row=${focus.row}&col=${focus.col}&dir=${dir}`);
-            focus = { row: r.row, col: r.col };
-          } catch { backend = false; localNavigate(dir); }
-        } else {
-          localNavigate(dir);
+      async function buildApps() {
+        const data = await api("/api/apps");
+        const apps = data?.apps ?? [];
+        const h = document.createElement("h2"); h.textContent = "Apps"; mainEl.appendChild(h);
+        const grid = document.createElement("div"); grid.className = "grid";
+        const tiles = apps.map((a) => {
+          const t = document.createElement("div"); t.className = "tile"; t.tabIndex = 0;
+          t.innerHTML = `<span class="glyph" style="background:${a.accent}">${a.glyph}</span>
+                         <span class="name">${a.name}</span>`;
+          t.dataset.app = a.name;
+          t.addEventListener("click", () => launch(a.name));
+          grid.appendChild(t); return t;
+        });
+        mainEl.appendChild(grid);
+        state.rows = chunk(tiles, COLS);
+        state.onEnter = (el) => launch(el?.dataset?.app);
+      }
+
+      function buildSearch() {
+        const input = document.createElement("input");
+        input.className = "search-box"; input.placeholder = "Search apps, movies, shows…";
+        input.setAttribute("aria-label", "Search");
+        const note = document.createElement("p"); note.className = "muted"; note.textContent = "Type to search the catalog.";
+        const results = document.createElement("div"); results.className = "grid";
+        mainEl.append(input, note, results);
+
+        let timer = null;
+        const run = async () => {
+          const q = input.value.trim();
+          if (!q) { results.innerHTML = ""; note.textContent = "Type to search the catalog."; rebuildSearchRows(input, []); return; }
+          const data = await api("/api/search?q=" + encodeURIComponent(q));
+          const hits = data?.results ?? [];
+          note.textContent = `${hits.length} result${hits.length === 1 ? "" : "s"} for “${q}”`;
+          results.innerHTML = "";
+          const els = hits.map((it) => it.type === "app"
+            ? appResultTile(it, results) : (() => { const c = mediaCard(it); results.appendChild(c); return c; })());
+          rebuildSearchRows(input, chunk(els, COLS));
+        };
+        input.addEventListener("input", () => { clearTimeout(timer); timer = setTimeout(run, 160); });
+        state.onInput = input;
+        state.rows = [[input]];
+        state.onEnter = () => {}; // results handle their own
+      }
+      function appResultTile(a, container) {
+        const t = document.createElement("div"); t.className = "tile"; t.tabIndex = 0;
+        t.innerHTML = `<span class="glyph" style="background:${a.accent}">${a.glyph}</span><span class="name">${a.name}</span>`;
+        t.addEventListener("click", () => launch(a.name));
+        container.appendChild(t); return t;
+      }
+      function rebuildSearchRows(input, resultRows) {
+        state.rows = [[input], ...resultRows];
+      }
+
+      function buildSettings() {
+        const h = document.createElement("h2"); h.textContent = "Settings"; mainEl.appendChild(h);
+        const chips = document.createElement("div"); chips.className = "chips"; mainEl.appendChild(chips);
+        api("/api/specs").then((s) => {
+          if (!s) return;
+          const items = [["RAM", `≤ ${s.total_ram_mb_max} MB`], ["CPU idle", `< ${s.cpu_idle_pct_max}%`],
+            ["Boot", `< ${s.boot_s_max}s`], ["Launcher", `< ${s.launcher_start_ms_max}ms`],
+            ["Animation", `${s.animation_fps} FPS`], ["Image", `< ${s.system_image_gb_max} GB`]];
+          chips.innerHTML = items.map(([k, v]) => `<span class="chip">${k} ${v}</span>`).join("");
+        });
+        const toggles = [
+          { name: "Theme", vals: ["Dark", "Light"] },
+          { name: "Accent", vals: ["Blue", "Purple", "Green", "Orange"] },
+          { name: "Power Mode", vals: ["Balanced", "Performance", "Battery Saver"] },
+          { name: "Reduced Motion", vals: ["Off", "On"] },
+        ];
+        const rowEls = toggles.map((t) => {
+          let i = 0;
+          const el = document.createElement("div"); el.className = "setrow"; el.tabIndex = 0;
+          const render = () => el.innerHTML = `<span>${t.name}</span><span class="val">${t.vals[i]}</span>`;
+          render();
+          el._cycle = () => { i = (i + 1) % t.vals.length; render();
+            if (t.name === "Reduced Motion")
+              document.documentElement.setAttribute("data-au-motion", i ? "reduced" : "auto");
+            setStatus(`<b>${t.name}</b> → ${t.vals[i]}`); };
+          el.addEventListener("click", () => el._cycle());
+          mainEl.appendChild(el); return el;
+        });
+        state.rows = rowEls.map((e) => [e]);
+        state.onEnter = (el) => el?._cycle?.();
+      }
+
+      const chunk = (arr, n) => { const o = []; for (let i = 0; i < arr.length; i += n) o.push(arr.slice(i, i + n)); return o; };
+
+      // --- focus + navigation ---------------------------------------------
+      function cellAt(f) { return state.rows[f.r]?.[f.c] || null; }
+      function applyFocus() {
+        if (state.zone === "tabs") { tabEls[state.tab].focus(); return; }
+        const el = cellAt(state.focus);
+        if (el) { el.focus(); el.scrollIntoView({ block: "nearest", inline: "center", behavior: "smooth" }); }
+      }
+      function clampCol(r, want) {
+        const len = state.rows[r]?.length ?? 0;
+        return len ? Math.min(want, len - 1) : 0;
+      }
+      function navContent(dir) {
+        const f = state.focus;
+        if (dir === "left") { if (f.c > 0) { f.c--; state.desiredCol = f.c; } }
+        else if (dir === "right") { const max = (state.rows[f.r]?.length ?? 1) - 1; if (f.c < max) { f.c++; state.desiredCol = f.c; } }
+        else if (dir === "up") {
+          if (f.r > 0) { f.r--; f.c = clampCol(f.r, state.desiredCol); }
+          else { state.zone = "tabs"; applyFocus(); return; }
+        } else if (dir === "down") {
+          if (f.r < state.rows.length - 1) { f.r++; f.c = clampCol(f.r, state.desiredCol); }
         }
         applyFocus();
+      }
+      function navTabs(dir) {
+        if (dir === "left" && state.tab > 0) selectTab(state.tab - 1, false);
+        else if (dir === "right" && state.tab < SECTIONS.length - 1) selectTab(state.tab + 1, false);
+        else if (dir === "down") { state.zone = "content"; state.focus = { r: 0, c: 0 }; state.desiredCol = 0; applyFocus(); }
+        if (dir === "left" || dir === "right") applyFocus();
+      }
+
+      // --- overlay / actions ----------------------------------------------
+      function openDetail(m) {
+        sheetEl.innerHTML = `
+          <h3>${m.title}</h3>
+          <div class="meta">${m.subtitle} · ${m.genre}${m.progress > 0 ? " · " + m.progress + "% watched" : ""}</div>
+          <div class="bar"><i style="width:${m.progress || 0}%"></i></div>
+          <div class="btns">
+            <button class="play" data-x="play">▶ ${m.progress > 0 ? "Resume" : "Play"}</button>
+            <button data-x="close">Close</button>
+          </div>`;
+        overlayEl.classList.add("open");
+        const btns = [...sheetEl.querySelectorAll("button")];
+        btns[0].focus();
+        sheetEl.onkeydown = (e) => {
+          if (e.key === "ArrowLeft" || e.key === "ArrowRight") { e.preventDefault();
+            btns[(btns.indexOf(document.activeElement) + 1) % btns.length].focus(); }
+        };
+        btns.forEach((b) => b.addEventListener("click", () => {
+          if (b.dataset.x === "play") setStatus(`▶ <b>Playing:</b> ${m.title}`);
+          closeOverlay();
+        }));
+        setStatus(`Opened <b>${m.title}</b>`);
+      }
+      function closeOverlay() { overlayEl.classList.remove("open"); sheetEl.onkeydown = null; applyFocus(); }
+      const launch = (name) => name && setStatus(`Launching <b>${name}</b>…`);
+
+      // --- global keys -----------------------------------------------------
+      const DIRS = { ArrowLeft: "left", ArrowRight: "right", ArrowUp: "up", ArrowDown: "down" };
+      window.addEventListener("keydown", (e) => {
+        if (overlayEl.classList.contains("open")) {
+          if (e.key === "Escape" || e.key === "Backspace") { e.preventDefault(); closeOverlay(); }
+          return;
+        }
+        const typingInSearch = state.onInput && document.activeElement === state.onInput;
+        const dir = DIRS[e.key];
+        if (dir) {
+          // Let Left/Right edit text when the search box is focused and non-empty caret-wise.
+          if (typingInSearch && (dir === "left" || dir === "right")) return;
+          e.preventDefault();
+          if (state.zone === "tabs") navTabs(dir); else navContent(dir);
+          return;
+        }
+        if (e.key === "Enter") {
+          e.preventDefault();
+          if (state.zone === "tabs") { state.zone = "content"; state.focus = { r: 0, c: 0 }; applyFocus(); return; }
+          const el = cellAt(state.focus);
+          if (el && el.tagName === "AURORA-CARD") el.dispatchEvent(new KeyboardEvent("keydown", { key: "Enter" }));
+          else state.onEnter(el);
+        }
       });
 
-      rowsEl.addEventListener("au-select", (e) =>
-        (statusEl.innerHTML = `▶ <b>Selected:</b> ${e.detail.title}`));
+      // --- clock -----------------------------------------------------------
+      const tick = () => { const d = new Date();
+        $("#clock").textContent = d.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }); };
+      tick(); setInterval(tick, 10000);
 
-      applyFocus();
+      // --- boot ------------------------------------------------------------
+      paintTabs();
+      selectTab(0, true);
     </script>
   </body>
 </html>

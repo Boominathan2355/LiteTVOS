@@ -12,6 +12,7 @@ path = "src/main.rs"
 [dependencies]
 aurora-tokens = { path = "../frameworks/aurora-tokens" }
 aurora-focus = { path = "../frameworks/aurora-focus" }
+aurora-catalog = { path = "../frameworks/aurora-catalog" }
 
 [features]
 # The real Wayland compositor (Smithay) + Skia renderer land behind this flag

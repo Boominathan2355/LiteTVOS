@@ -1,41 +1,35 @@
 //! LiteTV OS demo backend — std-only HTTP server (no external crates).
 //!
-//! A real device never runs this. It exists so the Aurora UI prototype and the
-//! `aurora-focus` engine can be shown live from a hosted Web Service that must
-//! bind `$PORT` and stay running (e.g. Render).
+//! A real device never runs this. It exists so the Aurora UI launcher and the
+//! `aurora-focus` / `aurora-catalog` crates can be shown live from a hosted Web
+//! Service that must bind `$PORT` and stay running (e.g. Render).
 //!
-//! Static:
-//!   GET /                              the Aurora UI web demo
-//!   GET /tokens.css, /components/aurora-card.js
-//! Backend API (JSON):
-//!   GET /api/home                      home-screen rows
-//!   GET /api/navigate?row=&col=&dir=   stateless focus move (dir=up|down|left|right)
-//!   GET /api/state                     scripted navigation trace
-//!   GET /api/specs                     engineering targets
-//!   GET /healthz                       health check
+//! Static:  GET /  ·  /tokens.css  ·  /components/aurora-card.js
+//! API:     GET /api/home  /api/apps  /api/search?q=  /api/item?id=
+//!          GET /api/navigate?row=&col=&dir=   /api/specs  /api/state  /healthz
 
 use std::io::{BufRead, BufReader, Write};
 use std::net::{TcpListener, TcpStream};
 use std::thread;
 use std::time::Duration;
 
+use aurora_catalog as cat;
 use aurora_focus::{Direction, FocusGrid, Row};
 
 const DEMO_HTML: &str = include_str!("../../frameworks/aurora-ui/demo.html");
 const TOKENS_CSS: &str = include_str!("../../frameworks/aurora-ui/tokens.css");
 const CARD_JS: &str = include_str!("../../frameworks/aurora-ui/components/aurora-card.js");
 
-/// The default home screen, single source of truth for the backend.
+/// Focus grid mirroring the catalog's home rows, so /api/navigate stays in sync
+/// with /api/home.
 fn home_grid() -> FocusGrid {
-    FocusGrid::new(vec![
-        Row::new("Continue Watching", 6),
-        Row::new("Pinned Apps", 8),
-        Row::new("Media Recommendations", 12),
-        Row::new("Recently Opened", 5),
-    ])
+    let rows = cat::home()
+        .into_iter()
+        .map(|r| Row::new(r.title, r.items.len()))
+        .collect();
+    FocusGrid::new(rows)
 }
 
-/// Bind `0.0.0.0:port` and serve until killed.
 pub fn run(port: u16) {
     let addr = format!("0.0.0.0:{port}");
     let listener = TcpListener::bind(&addr).unwrap_or_else(|e| {
@@ -43,7 +37,6 @@ pub fn run(port: u16) {
         std::process::exit(1);
     });
     println!("LiteTV OS · Aurora UI backend listening on http://{addr}");
-
     for stream in listener.incoming() {
         match stream {
             Ok(s) => {
@@ -60,24 +53,18 @@ fn handle(mut stream: TcpStream) {
         Ok(s) => s,
         Err(_) => return,
     });
-
     let mut request_line = String::new();
     if reader.read_line(&mut request_line).is_err() {
         return;
     }
     let target = request_line.split_whitespace().nth(1).unwrap_or("/");
-
     let (status, ctype, body) = route(target);
-    let response = format!(
-        "HTTP/1.1 {status}\r\n\
-         Content-Type: {ctype}\r\n\
-         Content-Length: {len}\r\n\
-         Access-Control-Allow-Origin: *\r\n\
-         Cache-Control: no-cache\r\n\
-         Connection: close\r\n\r\n",
+    let head = format!(
+        "HTTP/1.1 {status}\r\nContent-Type: {ctype}\r\nContent-Length: {len}\r\n\
+         Access-Control-Allow-Origin: *\r\nCache-Control: no-cache\r\nConnection: close\r\n\r\n",
         len = body.len()
     );
-    let _ = stream.write_all(response.as_bytes());
+    let _ = stream.write_all(head.as_bytes());
     let _ = stream.write_all(body.as_bytes());
     let _ = stream.flush();
 }
@@ -94,10 +81,13 @@ fn route(target: &str) -> (&'static str, &'static str, String) {
             "application/javascript; charset=utf-8",
             CARD_JS.to_string(),
         ),
-        "/api/home" => ("200 OK", "application/json", home_json()),
+        "/api/home" => json(home_json()),
+        "/api/apps" => json(apps_json()),
+        "/api/search" => json(search_json(&param(query, "q").unwrap_or_default())),
+        "/api/item" => item(&param(query, "id").unwrap_or_default()),
         "/api/navigate" => navigate(query),
-        "/api/state" => ("200 OK", "application/json", state_json()),
-        "/api/specs" => ("200 OK", "application/json", specs_json()),
+        "/api/specs" => json(specs_json()),
+        "/api/state" => json(state_json()),
         "/healthz" => ("200 OK", "text/plain", "ok".to_string()),
         _ => (
             "404 Not Found",
@@ -107,20 +97,81 @@ fn route(target: &str) -> (&'static str, &'static str, String) {
     }
 }
 
-// --- API handlers ---------------------------------------------------------
+fn json(body: String) -> (&'static str, &'static str, String) {
+    ("200 OK", "application/json", body)
+}
+
+// --- JSON builders --------------------------------------------------------
+
+fn media_json(m: &cat::MediaItem) -> String {
+    format!(
+        "{{\"type\":\"media\",\"id\":\"{}\",\"title\":\"{}\",\"subtitle\":\"{}\",\
+          \"genre\":\"{}\",\"accent\":\"{}\",\"progress\":{}}}",
+        esc(m.id), esc(m.title), esc(m.subtitle), esc(m.genre), esc(m.accent), m.progress
+    )
+}
+
+fn app_json(a: &cat::App) -> String {
+    format!(
+        "{{\"type\":\"app\",\"id\":\"{}\",\"name\":\"{}\",\"glyph\":\"{}\",\
+          \"accent\":\"{}\",\"category\":\"{}\"}}",
+        esc(a.id), esc(a.name), esc(a.glyph), esc(a.accent), esc(a.category)
+    )
+}
 
 fn home_json() -> String {
-    let grid = home_grid();
-    let rows: Vec<String> = grid
-        .rows()
+    let rows: Vec<String> = cat::home()
         .iter()
         .enumerate()
-        .map(|(i, r)| format!("{{\"index\":{i},\"title\":\"{}\",\"items\":{}}}", r.title, r.len))
+        .map(|(i, r)| {
+            let items: Vec<String> = r.items.iter().map(|m| media_json(m)).collect();
+            format!(
+                "{{\"index\":{i},\"title\":\"{}\",\"items\":[{}]}}",
+                esc(r.title),
+                items.join(",")
+            )
+        })
         .collect();
     format!("{{\"shell\":\"Aurora UI\",\"rows\":[{}]}}", rows.join(","))
 }
 
-/// Stateless focus move: client passes current `row`/`col` and a `dir`.
+fn apps_json() -> String {
+    let apps: Vec<String> = cat::APPS.iter().map(|a| app_json(a)).collect();
+    format!("{{\"apps\":[{}]}}", apps.join(","))
+}
+
+fn search_json(q: &str) -> String {
+    let hits: Vec<String> = cat::search(q)
+        .iter()
+        .map(|h| match h {
+            cat::Hit::Media(m) => media_json(m),
+            cat::Hit::App(a) => app_json(a),
+        })
+        .collect();
+    format!("{{\"query\":\"{}\",\"results\":[{}]}}", esc(q), hits.join(","))
+}
+
+fn item(id: &str) -> (&'static str, &'static str, String) {
+    if let Some(m) = cat::find_media(id) {
+        json(media_json(m))
+    } else if let Some(a) = cat::find_app(id) {
+        json(app_json(a))
+    } else {
+        (
+            "404 Not Found",
+            "application/json",
+            "{\"error\":\"unknown id\"}".to_string(),
+        )
+    }
+}
+
+fn specs_json() -> String {
+    "{\"total_ram_mb_max\":512,\"cpu_idle_pct_max\":2,\"boot_s_max\":20,\
+      \"launcher_start_ms_max\":500,\"app_launch_s_max\":1,\"animation_fps\":60,\
+      \"system_image_gb_max\":2.5}"
+        .to_string()
+}
+
 fn navigate(query: &str) -> (&'static str, &'static str, String) {
     let dir = match param(query, "dir").and_then(parse_dir) {
         Some(d) => d,
@@ -134,31 +185,19 @@ fn navigate(query: &str) -> (&'static str, &'static str, String) {
     };
     let row = param(query, "row").and_then(|s| s.parse().ok()).unwrap_or(0);
     let col = param(query, "col").and_then(|s| s.parse().ok()).unwrap_or(0);
-
     let mut grid = home_grid();
     grid.set_focus(row, col);
     let moved = grid.navigate(dir);
     let f = grid.focus();
     let title = grid.focused_row_title().unwrap_or("");
-    (
-        "200 OK",
-        "application/json",
-        format!(
-            "{{\"dir\":\"{dir:?}\",\"moved\":{moved},\"row\":{},\"col\":{},\"title\":\"{title}\"}}",
-            f.row, f.col
-        ),
-    )
+    json(format!(
+        "{{\"dir\":\"{dir:?}\",\"moved\":{moved},\"row\":{},\"col\":{},\"title\":\"{}\"}}",
+        f.row,
+        f.col,
+        esc(title)
+    ))
 }
 
-/// Engineering targets (docs/13-Roadmap.md), served as JSON.
-fn specs_json() -> String {
-    "{\"total_ram_mb_max\":512,\"cpu_idle_pct_max\":2,\"boot_s_max\":20,\
-      \"launcher_start_ms_max\":500,\"app_launch_s_max\":1,\"animation_fps\":60,\
-      \"system_image_gb_max\":2.5}"
-        .to_string()
-}
-
-/// Scripted navigation trace — same model the native shell runs.
 fn state_json() -> String {
     let mut grid = home_grid();
     let script = [
@@ -179,23 +218,71 @@ fn state_json() -> String {
 
 fn step_obj(action: &str, grid: &FocusGrid) -> String {
     let f = grid.focus();
-    let title = grid.focused_row_title().unwrap_or("");
     format!(
-        "{{\"action\":\"{action}\",\"row\":{},\"col\":{},\"title\":\"{title}\"}}",
-        f.row, f.col
+        "{{\"action\":\"{action}\",\"row\":{},\"col\":{},\"title\":\"{}\"}}",
+        f.row,
+        f.col,
+        esc(grid.focused_row_title().unwrap_or(""))
     )
 }
 
-// --- tiny query helpers ---------------------------------------------------
+// --- helpers --------------------------------------------------------------
 
-fn param<'a>(query: &'a str, key: &str) -> Option<&'a str> {
+/// Minimal URL-decode (handles %XX and '+') for query values.
+fn url_decode(s: &str) -> String {
+    let b = s.as_bytes();
+    let mut out = String::with_capacity(s.len());
+    let mut i = 0;
+    while i < b.len() {
+        match b[i] {
+            b'+' => {
+                out.push(' ');
+                i += 1;
+            }
+            b'%' if i + 2 < b.len() => {
+                let h = std::str::from_utf8(&b[i + 1..i + 3]).ok();
+                if let Some(v) = h.and_then(|h| u8::from_str_radix(h, 16).ok()) {
+                    out.push(v as char);
+                    i += 3;
+                } else {
+                    out.push('%');
+                    i += 1;
+                }
+            }
+            c => {
+                out.push(c as char);
+                i += 1;
+            }
+        }
+    }
+    out
+}
+
+fn param(query: &str, key: &str) -> Option<String> {
     query.split('&').find_map(|kv| {
         let (k, v) = kv.split_once('=')?;
-        (k == key).then_some(v)
+        (k == key).then(|| url_decode(v))
     })
 }
 
-fn parse_dir(s: &str) -> Option<Direction> {
+/// Escape a string for embedding in JSON.
+fn esc(s: &str) -> String {
+    let mut out = String::with_capacity(s.len());
+    for c in s.chars() {
+        match c {
+            '"' => out.push_str("\\\""),
+            '\\' => out.push_str("\\\\"),
+            '\n' => out.push_str("\\n"),
+            '\r' => out.push_str("\\r"),
+            '\t' => out.push_str("\\t"),
+            c if (c as u32) < 0x20 => out.push_str(&format!("\\u{:04x}", c as u32)),
+            c => out.push(c),
+        }
+    }
+    out
+}
+
+fn parse_dir(s: String) -> Option<Direction> {
     match s.to_ascii_lowercase().as_str() {
         "up" => Some(Direction::Up),
         "down" => Some(Direction::Down),

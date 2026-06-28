@@ -44,16 +44,24 @@ renderer attach behind the launcher's `render` feature.
 a std-only HTTP backend when `PORT` is set — `PORT=8080 cargo run`). Deploy config
 in [render.yaml](render.yaml). This is a demo host, not the OS itself.
 
-Backend API (JSON, driven by the `aurora-focus` engine):
+The page is a full multi-section launcher (**Home · Apps · Search · Settings**)
+with focus navigation, a detail overlay, and a live clock — all data served by
+the Rust backend (`aurora-catalog` + `aurora-focus`):
 
 | Endpoint | Returns |
 |----------|---------|
-| `GET /` | The Aurora UI web demo |
-| `GET /api/home` | Home-screen rows |
-| `GET /api/navigate?row=&col=&dir=` | Stateless focus move (`dir`=up\|down\|left\|right) |
+| `GET /` | The Aurora UI launcher (SPA) |
+| `GET /api/home` | Home rows with media items |
+| `GET /api/apps` | App library |
+| `GET /api/search?q=` | Universal search over media + apps |
+| `GET /api/item?id=` | Media/app detail |
+| `GET /api/navigate?row=&col=&dir=` | Stateless focus move (engine demo) |
 | `GET /api/state` | Scripted navigation trace |
 | `GET /api/specs` | Engineering targets (512 MB, 60 FPS, …) |
 | `GET /healthz` | Health check |
+
+Crates behind it: `frameworks/aurora-catalog` (content model + search),
+`frameworks/aurora-focus` (navigation), `frameworks/aurora-tokens` (design tokens).
 
 **OS image** (Yocto → QEMU aarch64): see [build/README.md](build/README.md).
 

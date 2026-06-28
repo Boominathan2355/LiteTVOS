@@ -1,0 +1,8 @@
+[package]
+name = "aurora-catalog"
+description = "Aurora UI content model — media + apps catalog and search (std-only)"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+
+[dependencies]
