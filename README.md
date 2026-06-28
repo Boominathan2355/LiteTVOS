@@ -40,6 +40,11 @@ Crates: `frameworks/aurora-tokens` (design tokens), `frameworks/aurora-focus`
 (TV focus engine), `launcher` (shell binary). The Smithay compositor + Skia
 renderer attach behind the launcher's `render` feature.
 
+**Live demo** (the launcher doubles as a tiny web host): set `PORT` and it serves
+the Aurora UI web demo plus a `/api/state` focus trace — used for the Render
+deploy ([render.yaml](render.yaml)). `PORT=8080 cargo run`. This is a demo host,
+not the OS itself.
+
 **OS image** (Yocto → QEMU aarch64): see [build/README.md](build/README.md).
 
 - Stack: Yocto · lean Wayland (no X11) · Rust/Skia (Smithay) shell · QEMU-first

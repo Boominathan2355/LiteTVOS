@@ -1,0 +1,12 @@
+# Render blueprint — hosts the Aurora UI live demo.
+# The launcher serves the web demo + /api/state when PORT is set (Render sets it);
+# locally it runs the headless shell. This is a demo host, not the OS itself.
+services:
+  - type: web
+    name: litetv-aurora-demo
+    runtime: rust
+    plan: free
+    buildCommand: cargo build --release
+    startCommand: ./target/release/litetv-launcher
+    healthCheckPath: /healthz
+    autoDeploy: true

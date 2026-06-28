@@ -6,6 +6,7 @@
 //! `render` feature without touching this control flow.
 
 mod compositor;
+mod serve;
 
 use aurora_focus::{Direction, FocusGrid, Row};
 use compositor::{Backend, Frame, HeadlessBackend};
@@ -21,6 +22,14 @@ fn home_screen() -> FocusGrid {
 }
 
 fn main() {
+    // Hosted Web Service (Render et al.) sets PORT and needs a long-running
+    // process bound to it — serve the Aurora UI demo. Otherwise run headless.
+    if let Ok(port) = std::env::var("PORT") {
+        let port: u16 = port.parse().unwrap_or(10000);
+        serve::run(port);
+        return;
+    }
+
     println!("LiteTV OS · Aurora UI shell (headless)");
     println!("Surface: {:?}\n", aurora_tokens::palette::BG.rgba());
 
