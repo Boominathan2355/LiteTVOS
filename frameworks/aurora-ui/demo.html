@@ -3,100 +3,180 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Aurora UI · aurora-card demo</title>
+    <title>Aurora UI · LiteTV OS</title>
     <link rel="stylesheet" href="tokens.css" />
     <style>
+      html, body { height: 100%; }
       body {
-        margin: 0;
-        min-height: 100vh;
-        background: var(--au-bg);
-        color: var(--au-text);
+        margin: 0; background: var(--au-bg); color: var(--au-text);
         font-family: var(--au-font);
-        padding: var(--au-space-6) clamp(16px, 5vw, 64px);
+        padding: var(--au-space-5) clamp(16px, 4vw, 56px) var(--au-space-6);
         box-sizing: border-box;
       }
-      h1 { font: var(--au-display); margin: 0 0 4px; }
-      .hint { color: var(--au-text-2); font: var(--au-body); margin: 0 0 32px; }
-      kbd {
-        background: var(--au-surface-2); border-radius: 6px;
-        padding: 2px 7px; font: var(--au-caption); border: 1px solid #333;
+      header { display: flex; align-items: baseline; gap: 16px; flex-wrap: wrap; }
+      h1 { font: var(--au-display); font-size: 34px; margin: 0; }
+      .tag { color: var(--au-text-2); font: var(--au-body); }
+      .specs {
+        margin: 10px 0 4px; display: flex; gap: 8px; flex-wrap: wrap;
       }
-      h2 { font: var(--au-heading); margin: 32px 0 16px; }
-      /* Horizontal focus row — the canonical TV layout */
+      .chip {
+        font: var(--au-caption); color: var(--au-text);
+        background: var(--au-surface-2); border: 1px solid #2c2f36;
+        border-radius: 999px; padding: 4px 10px;
+      }
+      .hint { color: var(--au-text-2); font: var(--au-caption); margin: 6px 0 0; }
+      kbd {
+        background: var(--au-surface-2); border-radius: 6px; padding: 1px 6px;
+        font: var(--au-caption); border: 1px solid #333;
+      }
+      a { color: var(--au-primary); text-decoration: none; }
+      h2 { font: var(--au-heading); font-size: 20px; margin: 22px 0 12px; }
       .row {
-        display: flex; gap: var(--au-space-5);
-        overflow-x: auto; padding: 24px 8px; scroll-padding-inline: 24px;
-        scroll-snap-type: x proximity;
+        display: flex; gap: var(--au-space-4);
+        overflow-x: auto; padding: 18px 6px; scroll-padding-inline: 24px;
       }
       .row::-webkit-scrollbar { height: 0; }
-      aurora-card { scroll-snap-align: center; }
-      #log {
-        margin-top: 24px; color: var(--au-text-2); font: var(--au-caption);
-        min-height: 1.4em;
+      aurora-card { --au-card-w: 168px; scroll-snap-align: center; }
+      #status {
+        position: sticky; bottom: 0; margin-top: 12px; padding: 8px 0;
+        color: var(--au-text-2); font: var(--au-caption);
+        background: linear-gradient(transparent, var(--au-bg) 40%);
       }
+      #status b { color: var(--au-text); }
+      .src { color: var(--au-text-2); }
     </style>
   </head>
   <body>
-    <h1>Aurora UI</h1>
+    <header>
+      <h1>Aurora UI</h1>
+      <span class="tag">LiteTV OS — Beautiful Performance</span>
+    </header>
+    <div class="specs" id="specs"></div>
     <p class="hint">
-      <code>&lt;aurora-card&gt;</code> — use <kbd>←</kbd> <kbd>→</kbd> to move
-      focus, <kbd>Enter</kbd> to select. Focus scales, glows, elevates, and
-      reveals quick actions.
+      <kbd>←</kbd> <kbd>→</kbd> <kbd>↑</kbd> <kbd>↓</kbd> move focus ·
+      <kbd>Enter</kbd> select. Focus logic runs server-side in Rust via
+      <a href="/api/navigate?row=0&col=0&dir=right"><code>/api/navigate</code></a>.
     </p>
 
-    <h2>Continue Watching</h2>
-    <div class="row" id="row"></div>
-
-    <div id="log">Ready.</div>
+    <main id="rows"></main>
+    <div id="status">Loading…</div>
 
     <script type="module">
       import "./components/aurora-card.js";
 
-      const items = [
-        { title: "Aurora Origins", subtitle: "1h 52m · Documentary", progress: 0.42, accent: "#3A7AFE" },
-        { title: "Neon Drift", subtitle: "2h 08m · Action", progress: 0.71, accent: "#EA4335" },
-        { title: "Quiet Tides", subtitle: "1h 36m · Drama", progress: 0.15, accent: "#34C759" },
-        { title: "Starfall", subtitle: "2h 44m · Sci-Fi", progress: 0.9, accent: "#5C6BC0" },
-        { title: "Golden Hour", subtitle: "1h 21m · Romance", progress: 0.33, accent: "#F4B400" },
-        { title: "The Long Road", subtitle: "2h 02m · Adventure", progress: 0.05, accent: "#3A7AFE" },
-      ];
+      const ACCENTS = ["#3A7AFE", "#EA4335", "#34C759", "#5C6BC0", "#F4B400", "#8E7CFF"];
+      const NAMES = ["Aurora Origins","Neon Drift","Quiet Tides","Starfall","Golden Hour",
+        "The Long Road","Skyline","Echoes","Midnight Sun","Paper Boats","Lantern","Driftwood"];
+      const GENRES = ["Documentary","Action","Drama","Sci-Fi","Romance","Adventure"];
 
-      const row = document.getElementById("row");
-      const log = document.getElementById("log");
+      const rowsEl = document.getElementById("rows");
+      const statusEl = document.getElementById("status");
+      const specsEl = document.getElementById("specs");
 
-      for (const it of items) {
-        const card = document.createElement("aurora-card");
-        card.setAttribute("title", it.title);
-        card.setAttribute("subtitle", it.subtitle);
-        card.setAttribute("progress", it.progress);
-        card.setAttribute("accent", it.accent);
-        card.innerHTML = `
-          <button slot="actions" data-action="play"  aria-label="Play">▶</button>
-          <button slot="actions" data-action="info"  aria-label="More info">ⓘ</button>
-        `;
-        row.appendChild(card);
+      let home = { rows: [] };
+      let focus = { row: 0, col: 0 };
+      let backend = true;
+
+      const api = async (path) => {
+        const r = await fetch(path);
+        if (!r.ok && r.status !== 400) throw new Error(path + " → " + r.status);
+        return r.json();
+      };
+
+      // Specs chips from /api/specs (graceful if offline).
+      try {
+        const s = await api("/api/specs");
+        const chips = [
+          ["RAM", `≤ ${s.total_ram_mb_max} MB`],
+          ["CPU idle", `< ${s.cpu_idle_pct_max}%`],
+          ["Boot", `< ${s.boot_s_max}s`],
+          ["Launcher", `< ${s.launcher_start_ms_max}ms`],
+          ["Anim", `${s.animation_fps} FPS`],
+          ["Image", `< ${s.system_image_gb_max} GB`],
+        ];
+        specsEl.innerHTML = chips.map(([k, v]) => `<span class="chip">${k} ${v}</span>`).join("");
+      } catch { specsEl.remove(); }
+
+      // Home layout from /api/home (fallback to a static row if opened as a file).
+      try {
+        home = await api("/api/home");
+      } catch {
+        backend = false;
+        home = { rows: [{ index: 0, title: "Continue Watching", items: 6 }] };
       }
 
-      // Horizontal focus navigation (remote D-pad / arrow keys).
-      const cards = [...row.querySelectorAll("aurora-card")];
-      row.addEventListener("keydown", (e) => {
-        const i = cards.indexOf(e.target);
-        if (i < 0) return;
-        if (e.key === "ArrowRight" && i < cards.length - 1) {
-          e.preventDefault();
-          cards[i + 1].focus();
-        } else if (e.key === "ArrowLeft" && i > 0) {
-          e.preventDefault();
-          cards[i - 1].focus();
+      const cardEls = []; // cardEls[row][col]
+      home.rows.forEach((row, ri) => {
+        const h2 = document.createElement("h2");
+        h2.textContent = row.title;
+        rowsEl.appendChild(h2);
+        const rowDiv = document.createElement("div");
+        rowDiv.className = "row";
+        const cols = [];
+        for (let ci = 0; ci < row.items; ci++) {
+          const card = document.createElement("aurora-card");
+          card.setAttribute("title", NAMES[(ri * 3 + ci) % NAMES.length]);
+          card.setAttribute("subtitle",
+            `${1 + ((ri + ci) % 2)}h ${10 + ci * 7 % 50}m · ${GENRES[(ri + ci) % GENRES.length]}`);
+          card.setAttribute("accent", ACCENTS[(ri + ci) % ACCENTS.length]);
+          card.setAttribute("progress", ((ci * 17 + ri * 11) % 100) / 100);
+          card.innerHTML = `
+            <button slot="actions" data-action="play" aria-label="Play">▶</button>
+            <button slot="actions" data-action="info" aria-label="Info">ⓘ</button>`;
+          rowDiv.appendChild(card);
+          cols.push(card);
         }
+        rowsEl.appendChild(rowDiv);
+        cardEls.push(cols);
       });
-      cards[0]?.setAttribute("tabindex", "0");
-      requestAnimationFrame(() => cards[0]?.focus());
 
-      row.addEventListener("au-select", (e) =>
-        (log.textContent = `▶ Selected: ${e.detail.title}`));
-      row.addEventListener("au-action", (e) =>
-        (log.textContent = `Action "${e.detail.action}" on focused card`));
+      const cardAt = (f) => cardEls[f.row]?.[f.col] || null;
+
+      function applyFocus() {
+        const el = cardAt(focus);
+        if (!el) return;
+        el.focus();
+        el.scrollIntoView({ inline: "center", block: "nearest", behavior: "smooth" });
+        const title = home.rows[focus.row]?.title ?? "";
+        statusEl.innerHTML =
+          `focus → <b>${title}</b> · row ${focus.row} · col ${focus.col}` +
+          (backend ? ` <span class="src">(via Rust /api/navigate)</span>`
+                   : ` <span class="src">(offline — local engine)</span>`);
+      }
+
+      const DIRS = { ArrowLeft: "left", ArrowRight: "right", ArrowUp: "up", ArrowDown: "down" };
+
+      // Local clamp fallback when no backend (file:// use).
+      function localNavigate(dir) {
+        const rows = home.rows;
+        if (dir === "left") focus.col = Math.max(0, focus.col - 1);
+        else if (dir === "right") focus.col = Math.min(rows[focus.row].items - 1, focus.col + 1);
+        else if (dir === "up" && focus.row > 0) {
+          focus.row--; focus.col = Math.min(focus.col, rows[focus.row].items - 1);
+        } else if (dir === "down" && focus.row < rows.length - 1) {
+          focus.row++; focus.col = Math.min(focus.col, rows[focus.row].items - 1);
+        }
+      }
+
+      window.addEventListener("keydown", async (e) => {
+        const dir = DIRS[e.key];
+        if (!dir) return;
+        e.preventDefault();
+        if (backend) {
+          try {
+            const r = await api(`/api/navigate?row=${focus.row}&col=${focus.col}&dir=${dir}`);
+            focus = { row: r.row, col: r.col };
+          } catch { backend = false; localNavigate(dir); }
+        } else {
+          localNavigate(dir);
+        }
+        applyFocus();
+      });
+
+      rowsEl.addEventListener("au-select", (e) =>
+        (statusEl.innerHTML = `▶ <b>Selected:</b> ${e.detail.title}`));
+
+      applyFocus();
     </script>
   </body>
 </html>

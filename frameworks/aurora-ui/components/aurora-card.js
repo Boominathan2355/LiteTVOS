@@ -53,6 +53,7 @@ TEMPLATE.innerHTML = `
 
     /* --- Focus state: scale + glow + elevate (the focus contract) --- */
     :host(:focus-visible) .card,
+    :host(:focus) .card,
     :host([focused]) .card {
       transform: scale(var(--au-focus-scale, 1.06));
       box-shadow: var(--au-focus-glow);
@@ -109,6 +110,7 @@ TEMPLATE.innerHTML = `
       pointer-events: none;
     }
     :host(:focus-visible) .actions,
+    :host(:focus) .actions,
     :host([focused]) .actions { opacity: 1; transform: none; pointer-events: auto; }
 
     ::slotted([slot="actions"]) {
