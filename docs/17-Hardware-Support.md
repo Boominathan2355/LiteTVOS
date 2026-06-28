@@ -52,6 +52,9 @@ inputs:
   [`aurora-catalog`](../frameworks/aurora-catalog) (`GET /api/channels`).
 - **Input switching** — `GET /api/inputs`; HDMI-CEC for one-touch play and
   power. The active source is shown in the [Live TV](03-UI-Design.md) UI.
+- **DVR** — record or schedule live programs (`GET /api/recordings`); recordings
+  track a lifecycle (Recording / Recorded / Scheduled). Captured to local
+  storage via the same hardware decode path, so recording costs no extra CPU.
 - Tuning and demux run on the SoC's hardware front-end/decoder, so live TV
   follows the same offload model as streamed media (see
   [Power](07-Power-Optimization.md)).

@@ -89,6 +89,10 @@ Cable and antenna tuner support plus external inputs:
 - **Categories** — News, Sports, Movies, Kids, Music, Documentary, Lifestyle
 - **Quick tune** — select a channel to watch live; channels are searchable
   through [universal search](#search)
+- **DVR / Recordings** — record the live program (or schedule one), with a
+  recordings strip showing each item's state: **Recording** (live), **Recorded**
+  (ready to play), or **Scheduled**. From a recording you can play, stop, or
+  cancel as its state allows.
 
 Backed by the tuner/input HAL — see [Hardware Support](17-Hardware-Support.md).
 

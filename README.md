@@ -46,8 +46,8 @@ in [render.yaml](render.yaml). This is a demo host, not the OS itself.
 
 The page is a full multi-section launcher
 (**Home · Live TV · Apps · Search · Settings**) with focus navigation, a detail
-overlay, and a live clock — all data served by the Rust backend
-(`aurora-catalog` + `aurora-focus`):
+overlay, a DVR recordings strip, and a live clock — all data served by the Rust
+backend (`aurora-catalog` + `aurora-focus`):
 
 | Endpoint | Returns |
 |----------|---------|
@@ -56,6 +56,7 @@ overlay, and a live clock — all data served by the Rust backend
 | `GET /api/apps` | App library |
 | `GET /api/channels` | Live TV channels (cable + antenna) with now/next |
 | `GET /api/inputs` | Tuner & HDMI inputs |
+| `GET /api/recordings` | DVR recordings (recorded / recording / scheduled) |
 | `GET /api/search?q=` | Universal search over media, apps + channels |
 | `GET /api/item?id=` | Media/app detail |
 | `GET /api/navigate?row=&col=&dir=` | Stateless focus move (engine demo) |

@@ -75,6 +75,20 @@
       .chname { font-size: 16px; font-weight: 600; margin-bottom: 8px; }
       .chnow, .chnext { font: var(--au-caption); color: var(--au-text-2); margin-top: 2px; }
       .chnow b, .chnext b { color: var(--au-text); margin-right: 6px; }
+      /* recordings */
+      .reccard { min-width: 220px; }
+      .recmeta { font: var(--au-caption); color: var(--au-text-2); margin-top: 6px; }
+      .badge {
+        font: var(--au-caption); font-size: 12px; font-weight: 700; letter-spacing: .02em;
+        border-radius: 999px; padding: 3px 9px; display: inline-flex; align-items: center; gap: 6px;
+      }
+      .badge.rec      { background: color-mix(in srgb, #EA4335 22%, transparent); color: #ff7a70; }
+      .badge.recorded { background: color-mix(in srgb, #34C759 20%, transparent); color: #54d97e; }
+      .badge.scheduled{ background: color-mix(in srgb, var(--au-primary) 22%, transparent); color: #7aa6ff; }
+      .badge .dot { width: 8px; height: 8px; border-radius: 50%; background: currentColor; }
+      .badge.rec .dot { animation: blink 1.2s steps(2, start) infinite; }
+      @keyframes blink { 50% { opacity: .25; } }
+      :root[data-au-motion="reduced"] .badge.rec .dot { animation: none; }
       /* search */
       .search-box {
         width: 100%; box-sizing: border-box; font: var(--au-body);
@@ -244,8 +258,11 @@
       }
 
       async function buildLiveTV() {
-        const [inp, chs] = await Promise.all([api("/api/inputs"), api("/api/channels")]);
+        const [inp, chs, rec] = await Promise.all([
+          api("/api/inputs"), api("/api/channels"), api("/api/recordings"),
+        ]);
         const inputs = inp?.inputs ?? [], channels = chs?.channels ?? [];
+        const records = rec?.recordings ?? [];
         state.rows = [];
 
         const ih = document.createElement("h2"); ih.textContent = "Inputs"; mainEl.appendChild(ih);
@@ -277,6 +294,45 @@
         });
         mainEl.appendChild(guide);
         state.rows.push(...chunk(chEls, 3));
+
+        if (records.length) {
+          const rh = document.createElement("h2"); rh.textContent = "Recordings (DVR)"; mainEl.appendChild(rh);
+          const rrow = document.createElement("div"); rrow.className = "row";
+          const recEls = records.map((r) => {
+            const card = document.createElement("div"); card.className = "chcard reccard"; card.tabIndex = 0;
+            card.style.setProperty("--ac", r.accent);
+            card.innerHTML = `
+              <div class="chhead"><span class="num">${r.channel}</span>${recBadge(r.status)}</div>
+              <div class="chname">${r.title}</div>
+              <div class="recmeta">${r.when} · ${r.duration}</div>`;
+            card._enter = () => openRecording(r);
+            card.addEventListener("click", () => openRecording(r));
+            rrow.appendChild(card); return card;
+          });
+          mainEl.appendChild(rrow);
+          state.rows.push(recEls);
+        }
+      }
+      const recBadge = (s) => {
+        const cls = s === "Recording" ? "rec" : s === "Recorded" ? "recorded" : "scheduled";
+        return `<span class="badge ${cls}"><span class="dot"></span>${s}</span>`;
+      };
+      function openRecording(r) {
+        const playable = r.status === "Recorded";
+        sheetEl.innerHTML = `
+          <h3>${r.title}</h3>
+          <div class="meta">Ch ${r.channel} · ${r.when} · ${r.duration} ${recBadge(r.status)}</div>
+          <div class="btns">
+            ${playable ? `<button class="play" data-x="play">▶ Play</button>` : ""}
+            ${r.status === "Recording" ? `<button data-x="stop">■ Stop</button>` : ""}
+            ${r.status === "Scheduled" ? `<button data-x="cancel">✕ Cancel</button>` : ""}
+            <button data-x="close">Close</button></div>`;
+        openSheet((x) => {
+          if (x === "play") setStatus(`▶ <b>Playing recording:</b> ${r.title}`);
+          else if (x === "stop") setStatus(`■ <b>Stopped recording:</b> ${r.title}`);
+          else if (x === "cancel") setStatus(`✕ <b>Cancelled:</b> ${r.title}`);
+        });
+        setStatus(`Opened recording <b>${r.title}</b>`);
       }
       const switchInput = (name) => name && setStatus(`Switching input → <b>${name}</b>`);
       const kindGlyph = (k) => (k === "Tuner" ? "📡" : k === "HDMI" ? "⊞" : "◉");
@@ -286,15 +342,14 @@
           <div class="meta">${c.category} · ${c.source}</div>
           <div class="chnow" style="font-size:15px"><b>Now</b>${c.now}</div>
           <div class="chnext" style="font-size:15px;margin-bottom:18px"><b>Next</b>${c.next}</div>
-          <div class="btns"><button class="play" data-x="watch">▶ Watch Live</button><button data-x="close">Close</button></div>`;
-        overlayEl.classList.add("open");
-        const btns = [...sheetEl.querySelectorAll("button")]; btns[0].focus();
-        sheetEl.onkeydown = (e) => { if (e.key === "ArrowLeft" || e.key === "ArrowRight") { e.preventDefault();
-          btns[(btns.indexOf(document.activeElement) + 1) % btns.length].focus(); } };
-        btns.forEach((b) => b.addEventListener("click", () => {
-          if (b.dataset.x === "watch") setStatus(`📺 <b>Tuned to ${c.number}</b> ${c.name} — ${c.now}`);
-          closeOverlay();
-        }));
+          <div class="btns">
+            <button class="play" data-x="watch">▶ Watch Live</button>
+            <button data-x="record">● Record</button>
+            <button data-x="close">Close</button></div>`;
+        openSheet((x) => {
+          if (x === "watch") setStatus(`📺 <b>Tuned to ${c.number}</b> ${c.name} — ${c.now}`);
+          else if (x === "record") setStatus(`● <b>Recording:</b> ${c.now} on ${c.name}`);
+        });
         setStatus(`Opened <b>${c.name}</b>`);
       }
 
@@ -408,18 +463,23 @@
             <button class="play" data-x="play">▶ ${m.progress > 0 ? "Resume" : "Play"}</button>
             <button data-x="close">Close</button>
           </div>`;
+        openSheet((x) => { if (x === "play") setStatus(`▶ <b>Playing:</b> ${m.title}`); });
+        setStatus(`Opened <b>${m.title}</b>`);
+      }
+      // Wire an open sheet: show it, focus the first button, cycle with ←/→,
+      // and route a clicked button's data-x to `onAction` (then close). "close" just closes.
+      function openSheet(onAction) {
         overlayEl.classList.add("open");
         const btns = [...sheetEl.querySelectorAll("button")];
-        btns[0].focus();
+        if (btns.length) btns[0].focus();
         sheetEl.onkeydown = (e) => {
           if (e.key === "ArrowLeft" || e.key === "ArrowRight") { e.preventDefault();
             btns[(btns.indexOf(document.activeElement) + 1) % btns.length].focus(); }
         };
         btns.forEach((b) => b.addEventListener("click", () => {
-          if (b.dataset.x === "play") setStatus(`▶ <b>Playing:</b> ${m.title}`);
+          if (b.dataset.x !== "close" && onAction) onAction(b.dataset.x);
           closeOverlay();
         }));
-        setStatus(`Opened <b>${m.title}</b>`);
       }
       function closeOverlay() { overlayEl.classList.remove("open"); sheetEl.onkeydown = null; applyFocus(); }
       const launch = (name) => name && setStatus(`Launching <b>${name}</b>…`);

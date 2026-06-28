@@ -49,6 +49,21 @@ pub struct Input {
     pub kind: &'static str,
 }
 
+/// A DVR recording — completed, in-progress, or scheduled.
+#[derive(Clone, Copy, Debug)]
+pub struct Recording {
+    pub id: &'static str,
+    pub title: &'static str,
+    /// Source channel number (matches a [`Channel::number`]).
+    pub channel: &'static str,
+    pub accent: &'static str,
+    /// Human-readable start time.
+    pub when: &'static str,
+    pub duration: &'static str,
+    /// "Recorded", "Recording", or "Scheduled".
+    pub status: &'static str,
+}
+
 /// A titled row of media for the home screen.
 pub struct Row {
     pub title: &'static str,
@@ -113,6 +128,23 @@ pub static INPUTS: &[Input] = &[
     Input { id: "hdmi3",   name: "HDMI 3 (eARC)",  kind: "HDMI" },
     Input { id: "av",      name: "AV",             kind: "Composite" },
 ];
+
+/// DVR library — recorded, recording, and scheduled programs.
+pub static RECORDINGS: &[Recording] = &[
+    Recording { id: "rec-1", title: "World Tonight",        channel: "2.1",  accent: "#EA4335", when: "Today · 8:00 PM",  duration: "1h 00m", status: "Recorded"  },
+    Recording { id: "rec-2", title: "Live: City vs United", channel: "4.1",  accent: "#34C759", when: "Now",             duration: "2h 30m", status: "Recording" },
+    Recording { id: "rec-3", title: "Aurora Origins",       channel: "11.1", accent: "#3A7AFE", when: "Today · 9:00 PM",  duration: "1h 52m", status: "Scheduled" },
+    Recording { id: "rec-4", title: "Cooking Coast",        channel: "13.1", accent: "#34C759", when: "Yesterday",       duration: "0h 30m", status: "Recorded"  },
+    Recording { id: "rec-5", title: "Top 40",               channel: "9.1",  accent: "#F4B400", when: "Tomorrow · 6:00 PM", duration: "1h 00m", status: "Scheduled" },
+];
+
+pub fn recordings() -> &'static [Recording] {
+    RECORDINGS
+}
+
+pub fn find_recording(id: &str) -> Option<&'static Recording> {
+    RECORDINGS.iter().find(|r| r.id == id)
+}
 
 pub fn channels() -> &'static [Channel] {
     CHANNELS
@@ -218,6 +250,20 @@ mod tests {
         // Tuner + HDMI inputs exist.
         assert!(inputs().iter().any(|i| i.kind == "Tuner"));
         assert!(inputs().iter().any(|i| i.kind == "HDMI"));
+    }
+
+    #[test]
+    fn dvr_recordings_resolve_and_reference_channels() {
+        assert!(!recordings().is_empty());
+        let r = find_recording("rec-2").unwrap();
+        assert_eq!(r.status, "Recording");
+        assert!(find_recording("rec-nope").is_none());
+        // Every recording points at a real channel.
+        assert!(recordings().iter().all(|r| find_channel(r.channel).is_some()));
+        // All three lifecycle states are represented.
+        for s in ["Recorded", "Recording", "Scheduled"] {
+            assert!(recordings().iter().any(|r| r.status == s), "missing status {s}");
+        }
     }
 
     #[test]

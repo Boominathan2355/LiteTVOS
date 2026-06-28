@@ -5,7 +5,8 @@
 //! Service that must bind `$PORT` and stay running (e.g. Render).
 //!
 //! Static:  GET /  ·  /tokens.css  ·  /components/aurora-card.js
-//! API:     GET /api/home  /api/apps  /api/search?q=  /api/item?id=
+//! API:     GET /api/home  /api/apps  /api/channels  /api/inputs  /api/recordings
+//!          GET /api/search?q=  /api/item?id=
 //!          GET /api/navigate?row=&col=&dir=   /api/specs  /api/state  /healthz
 
 use std::io::{BufRead, BufReader, Write};
@@ -85,6 +86,7 @@ fn route(target: &str) -> (&'static str, &'static str, String) {
         "/api/apps" => json(apps_json()),
         "/api/channels" => json(channels_json()),
         "/api/inputs" => json(inputs_json()),
+        "/api/recordings" => json(recordings_json()),
         "/api/search" => json(search_json(&param(query, "q").unwrap_or_default())),
         "/api/item" => item(&param(query, "id").unwrap_or_default()),
         "/api/navigate" => navigate(query),
@@ -168,6 +170,20 @@ fn inputs_json() -> String {
     format!("{{\"inputs\":[{}]}}", inp.join(","))
 }
 
+fn recording_json(r: &cat::Recording) -> String {
+    format!(
+        "{{\"type\":\"recording\",\"id\":\"{}\",\"title\":\"{}\",\"channel\":\"{}\",\
+          \"accent\":\"{}\",\"when\":\"{}\",\"duration\":\"{}\",\"status\":\"{}\"}}",
+        esc(r.id), esc(r.title), esc(r.channel), esc(r.accent),
+        esc(r.when), esc(r.duration), esc(r.status)
+    )
+}
+
+fn recordings_json() -> String {
+    let recs: Vec<String> = cat::recordings().iter().map(|r| recording_json(r)).collect();
+    format!("{{\"recordings\":[{}]}}", recs.join(","))
+}
+
 fn search_json(q: &str) -> String {
     let hits: Vec<String> = cat::search(q)
         .iter()
@@ -187,6 +203,8 @@ fn item(id: &str) -> (&'static str, &'static str, String) {
         json(app_json(a))
     } else if let Some(c) = cat::find_channel(id) {
         json(channel_json(c))
+    } else if let Some(r) = cat::find_recording(id) {
+        json(recording_json(r))
     } else {
         (
             "404 Not Found",
