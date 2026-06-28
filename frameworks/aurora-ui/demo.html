@@ -223,6 +223,32 @@
       .chname { font-size: 16px; font-weight: 600; margin-bottom: 8px; }
       .chnow, .chnext, .recmeta { font: var(--au-caption); color: var(--au-text-2); margin-top: 2px; }
       .chnow b, .chnext b { color: var(--au-text); margin-right: 6px; }
+      /* Live TV preview box + channel list (replaces the guide card grid) */
+      .ltv { display: grid; grid-template-columns: minmax(0, 1.7fr) clamp(260px, 27vw, 360px); gap: 18px; align-items: start; }
+      @media (max-width: 1100px) { .ltv { grid-template-columns: 1fr; } }
+      .tvbox { position: relative; aspect-ratio: 16 / 9; border-radius: var(--au-radius-xl); overflow: hidden; border: 1px solid var(--au-border);
+        background: linear-gradient(135deg, color-mix(in srgb, var(--ac, var(--au-primary)) 68%, #04060a), color-mix(in srgb, var(--ac, var(--au-primary)) 20%, #04060a)); }
+      .tvbox::after { content: ""; position: absolute; inset: 0; background: linear-gradient(180deg, transparent 45%, rgba(0,0,0,.7)); }
+      .tvbox .row1 { position: absolute; top: 14px; left: 16px; right: 16px; display: flex; justify-content: space-between; align-items: center; z-index: 1; }
+      .live { display: inline-flex; align-items: center; gap: 7px; background: #EA4335; color: #fff; font: var(--au-caption); font-weight: 700; font-size: 12px; padding: 4px 11px; border-radius: 999px; }
+      .live .dot { width: 7px; height: 7px; border-radius: 50%; background: #fff; animation: blink 1.2s steps(2, start) infinite; }
+      .tvbox .src { font: var(--au-caption); color: #e6e9f0; background: rgba(0,0,0,.4); padding: 4px 10px; border-radius: 999px; backdrop-filter: blur(4px); }
+      .tvbox .info { position: absolute; left: 22px; right: 22px; bottom: 20px; z-index: 1; }
+      .tvbox .num { font-weight: 700; color: color-mix(in srgb, var(--ac, var(--au-primary)) 50%, #fff); }
+      .tvbox .nm { font-size: clamp(20px, 2.4vw, 28px); font-weight: 700; margin: 2px 0 6px; text-shadow: 0 2px 8px rgba(0,0,0,.6); }
+      .tvbox .pg { color: #dfe3ea; font-size: 15px; } .tvbox .pg b { color: #fff; margin-right: 6px; }
+      .tvbox .nx { color: #aeb6c5; font: var(--au-caption); margin-top: 4px; } .tvbox .nx b { color: #dfe3ea; margin-right: 6px; }
+      .tvctrls { display: flex; gap: 12px; margin-top: 14px; }
+      .chlist { display: flex; flex-direction: column; gap: 8px; max-height: 62vh; overflow-y: auto; padding-right: 4px; }
+      .chlist::-webkit-scrollbar { width: 0; }
+      .chrow { display: flex; align-items: center; gap: 14px; padding: 12px 14px; border-radius: var(--au-radius-md);
+        border: 1px solid var(--au-border); border-left: 4px solid var(--ac, var(--au-primary)); background: var(--au-surface);
+        cursor: pointer; outline: none; transition: background var(--au-dur-2), transform var(--au-dur-2), box-shadow var(--au-dur-2); }
+      .chrow .n { font-weight: 700; color: var(--ac, var(--au-text)); width: 40px; flex: none; }
+      .chrow .m { min-width: 0; } .chrow .m .t { font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+      .chrow .m .s { font: var(--au-caption); color: var(--au-text-2); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+      .chrow[aria-current="true"] { background: var(--au-surface-2); }
+      .chrow:focus { background: var(--au-surface-2); transform: translateX(2px); box-shadow: 0 0 0 3px color-mix(in srgb, var(--au-primary) 55%, transparent); }
       .reccard { min-width: 220px; }
       .badge { font: var(--au-caption); font-size: 12px; font-weight: 700; border-radius: 999px; padding: 3px 9px; display: inline-flex; align-items: center; gap: 6px; }
       .badge.rec { background: color-mix(in srgb, #EA4335 22%, transparent); color: #ff7a70; }
@@ -575,13 +601,52 @@
           t.innerHTML = `<span class="glyph" style="background:var(--au-surface-2)">${icon(kindIcon(i.kind), { size: 26 })}</span><span class="name">${i.name}</span>`;
           t._enter = () => switchInput(i.name); t.addEventListener("click", () => switchInput(i.name)); irow.appendChild(t); return t; });
         mainEl.appendChild(irow); if (inputEls.length) state.rows.push(inputEls);
+
         head(mainEl, "Channel Guide", "tv");
-        const guide = document.createElement("div"); guide.className = "guide";
-        const chEls = channels.map((c) => { const card = document.createElement("div"); card.className = "chcard"; card.tabIndex = 0; card.style.setProperty("--ac", c.accent);
-          card.innerHTML = `<div class="chhead"><span class="num">${c.number}</span><span class="src">${c.source}</span></div>
-            <div class="chname">${c.name}</div><div class="chnow"><b>Now</b>${c.now}</div><div class="chnext"><b>Next</b>${c.next}</div>`;
-          card._enter = () => openChannel(c); card.addEventListener("click", () => openChannel(c)); guide.appendChild(card); return card; });
-        mainEl.appendChild(guide); state.rows.push(...chunk(chEls, 3));
+        const ltv = document.createElement("div"); ltv.className = "ltv";
+        // left: live TV preview box + controls
+        const left = document.createElement("div");
+        const box = document.createElement("div"); box.className = "tvbox";
+        box.innerHTML = `<div class="row1"><span class="live"><span class="dot"></span>LIVE</span><span class="src"></span></div>
+          <div class="info"><span class="num"></span><div class="nm"></div>
+            <div class="pg"><b>Now</b><span class="pgv"></span></div><div class="nx"><b>Next</b><span class="nxv"></span></div></div>`;
+        const ctrls = document.createElement("div"); ctrls.className = "tvctrls";
+        const watchBtn = document.createElement("button"); watchBtn.className = "hbtn"; watchBtn.tabIndex = 0;
+        watchBtn.innerHTML = `${icon("play")} Watch Live`;
+        const recBtn = document.createElement("button"); recBtn.className = "hbtn ghost"; recBtn.tabIndex = 0;
+        recBtn.innerHTML = `${icon("record")} Record`;
+        ctrls.append(watchBtn, recBtn); left.append(box, ctrls); ltv.appendChild(left);
+        // right: compact channel list
+        const list = document.createElement("div"); list.className = "chlist"; ltv.appendChild(list);
+        mainEl.appendChild(ltv);
+
+        let current = channels[0] || null;
+        const chRows = [];
+        const setPreview = (c) => {
+          if (!c) return; current = c; box.style.setProperty("--ac", c.accent);
+          box.querySelector(".src").textContent = c.source;
+          box.querySelector(".num").textContent = c.number + " · " + c.category;
+          box.querySelector(".nm").textContent = c.name;
+          box.querySelector(".pgv").textContent = c.now;
+          box.querySelector(".nxv").textContent = c.next;
+          chRows.forEach((r) => r.setAttribute("aria-current", String(r._ch === c)));
+        };
+        const tuneTo = (c) => { setPreview(c); setStatus(`${icon("tv")} <b>Tuned to ${c.number}</b> ${c.name} — ${c.now}`); };
+        watchBtn._enter = () => current && tuneTo(current); watchBtn.onclick = () => current && tuneTo(current);
+        recBtn._enter = () => current && setStatus(`${icon("record")} <b>Recording:</b> ${current.now} on ${current.name}`);
+        recBtn.onclick = recBtn._enter;
+        channels.forEach((c) => {
+          const r = document.createElement("div"); r.className = "chrow"; r.tabIndex = 0; r._ch = c; r.style.setProperty("--ac", c.accent);
+          r.innerHTML = `<span class="n">${c.number}</span><div class="m"><div class="t">${c.name}</div>
+            <div class="s">${c.source} · Now ${c.now}</div></div>`;
+          r.addEventListener("focus", () => setPreview(c));
+          r._enter = () => tuneTo(c); r.addEventListener("click", () => tuneTo(c));
+          list.appendChild(r); chRows.push(r);
+        });
+        if (current) setPreview(current);
+        state.rows.push([watchBtn, recBtn]);
+        chRows.forEach((r) => state.rows.push([r]));
+
         if (records.length) { head(mainEl, "Recordings (DVR)", "record");
           const rrow = document.createElement("div"); rrow.className = "row";
           const recEls = records.map((r) => { const card = document.createElement("div"); card.className = "chcard reccard"; card.tabIndex = 0; card.style.setProperty("--ac", r.accent);

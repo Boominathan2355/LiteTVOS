@@ -90,7 +90,10 @@ re-skins instantly and consistently. See [Design System](04-Design-System.md).
 
 Cable and antenna tuner support plus external inputs:
 
-- **Channel guide** — now/next EPG per channel, grouped by source (Cable / Antenna)
+- **TV preview** — a large live preview box shows the focused channel (number,
+  name, now/next, source, a LIVE badge) with Watch Live / Record controls
+- **Channel guide** — a compact channel list beside the preview; moving through
+  it updates the preview live (now/next EPG, grouped by source Cable / Antenna)
 - **Inputs** — Antenna (ATSC), Cable (QAM), HDMI 1–3 (eARC), Component (YPbPr),
   VGA (PC), AV 1 / AV 2 (composite)
 - **Categories** — News, Sports, Movies, Kids, Music, Documentary, Lifestyle
